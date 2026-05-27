@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+credentials/
+service_account.json
+*.log
+.vercel
+node_modules/
