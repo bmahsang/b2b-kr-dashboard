@@ -1816,7 +1816,7 @@
   "product_sales": [],
   "orders": [],
   "crawl_meta": {
-    "crawled_at": "2026-05-30T01:52:06.127382",
+    "crawled_at": "2026-05-31T02:05:29.164501",
     "source": "godomall-openhub-api",
     "mode": "incremental"
   }
