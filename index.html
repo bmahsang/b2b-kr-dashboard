@@ -426,27 +426,28 @@ function renderAll() {
 }
 
 async function loadData(isRefresh) {
-  const overlay = document.getElementById('loadingOverlay');
-  const txt = document.getElementById('loadingText');
-  if (!isRefresh) { overlay.style.display = 'flex'; }
+  var overlay = document.getElementById('loadingOverlay');
+  var txt = document.getElementById('loadingText');
+  if (!isRefresh && overlay) overlay.style.display = 'flex';
   if (txt) txt.textContent = isRefresh ? '데이터 갱신 중...' : '고도몰 API에서 데이터 로딩 중... (최초 ~30초 소요)';
   try {
-    const resp = await fetch('/api/data');
-    if (!resp.ok) throw new Error('API ' + resp.status);
+    var resp = await fetch('/api/data');
+    if (!resp.ok) throw new Error('API status ' + resp.status);
     D = await resp.json();
     initData();
     calcMetrics();
     renderAll();
+    if (overlay) overlay.style.display = 'none';
   } catch (e) {
-    if (txt) txt.textContent = '데이터 로딩 실패: ' + e.message;
-    console.error(e);
-    return;
+    if (txt) txt.textContent = '오류: ' + e.message;
+    document.title = 'ERROR: ' + e.message;
   }
-  overlay.style.display = 'none';
 }
 
-loadData(false);
-setInterval(() => loadData(true), 300000);
+window.addEventListener('DOMContentLoaded', function() {
+  loadData(false);
+  setInterval(function(){ loadData(true); }, 300000);
+});
 </script>
 </body>
 </html>
