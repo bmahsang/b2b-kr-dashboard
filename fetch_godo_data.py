@@ -54,7 +54,7 @@ def fetch_orders(start_date, end_date):
         "key": API_KEY,
         "startDate": start_date,
         "endDate": end_date,
-        "dateType": "order",
+        "dateType": "payment",
     }
     try:
         resp = requests.post(API_URL, data=payload, timeout=30)
@@ -138,6 +138,7 @@ def parse_xml_orders(xml_text):
                 "goods_discount": total_goods_dc,
                 "member_discount": total_member_dc,
                 "payment_date": payment_dt[:10] if len(payment_dt) >= 10 else payment_dt,
+                "payment_hour": int(payment_dt[11:13]) if len(payment_dt) >= 13 and payment_dt[11:13].isdigit() else -1,
             })
 
         # 추가상품
@@ -167,6 +168,7 @@ def parse_xml_orders(xml_text):
                 "goods_discount": total_goods_dc,
                 "member_discount": total_member_dc,
                 "payment_date": payment_dt[:10] if len(payment_dt) >= 10 else payment_dt,
+                "payment_hour": int(payment_dt[11:13]) if len(payment_dt) >= 13 and payment_dt[11:13].isdigit() else -1,
             })
 
     return order_lines
@@ -210,6 +212,7 @@ def aggregate(order_lines):
                 "status": line["status"],
                 "total_amount": line["total_order_amount"],
                 "payment_date": line["payment_date"],
+                "payment_hour": line.get("payment_hour", -1),
                 "products": [],
             }
         orders_by_no[ono]["products"].append({
@@ -219,11 +222,11 @@ def aggregate(order_lines):
             "price_with_option": line["price_with_option"],
         })
 
-    # === daily_sales ===
+    # === daily_sales (결제확인일 기준) ===
     daily_map = defaultdict(lambda: {"order_count": 0, "product_codes": set(), "total_qty": 0, "amounts": []})
     for ono, order in orders_by_no.items():
-        dt = order["order_date"]
-        if not dt:
+        dt = order["payment_date"] or order["order_date"]
+        if not dt or dt < "2000-01-01":
             continue
         d = daily_map[dt]
         d["order_count"] += 1
@@ -249,7 +252,7 @@ def aggregate(order_lines):
         })
 
     # === customer_sales ===
-    cust_map = defaultdict(lambda: {"orders": set(), "total_sales": 0, "last_order_date": "", "name": "", "grade": ""})
+    cust_map = defaultdict(lambda: {"orders": set(), "total_sales": 0, "last_order_date": "", "first_order_date": "9999-12-31", "name": "", "grade": ""})
     for ono, order in orders_by_no.items():
         mid = order["member_id"]
         if not mid:
@@ -259,11 +262,17 @@ def aggregate(order_lines):
         c["grade"] = order["grade"]
         c["orders"].add(ono)
         c["total_sales"] += order["total_amount"]
-        if order["order_date"] > c["last_order_date"]:
-            c["last_order_date"] = order["order_date"]
+        pay_dt = order["payment_date"] or order["order_date"]
+        if not pay_dt or pay_dt < "2000-01-01":
+            pay_dt = None
+        if pay_dt and pay_dt > c["last_order_date"]:
+            c["last_order_date"] = pay_dt
+        if pay_dt and pay_dt < c["first_order_date"]:
+            c["first_order_date"] = pay_dt
 
     customer_sales = []
     for mid, c in cust_map.items():
+        first_dt = c["first_order_date"] if c["first_order_date"] != "9999-12-31" else ""
         customer_sales.append({
             "member_id": mid,
             "name": c["name"],
@@ -271,6 +280,7 @@ def aggregate(order_lines):
             "order_count": len(c["orders"]),
             "total_sales": c["total_sales"],
             "last_order_date": c["last_order_date"],
+            "first_order_date": first_dt,
         })
 
     customers = [{"member_id": mid, "name": c["name"], "grade": c["grade"]} for mid, c in cust_map.items()]
@@ -303,12 +313,51 @@ def aggregate(order_lines):
         key=lambda x: x["order_date"], reverse=True
     )
 
+    # === hourly_sales (결제확인일+시간 기준) ===
+    hourly_map = defaultdict(lambda: defaultdict(lambda: {"order_count": 0, "total_sales": 0}))
+    for ono, order in orders_by_no.items():
+        dt = order["payment_date"] or order["order_date"]
+        h = order.get("payment_hour", -1)
+        if not dt or dt < "2000-01-01" or h < 0:
+            continue
+        hourly_map[dt][h]["order_count"] += 1
+        hourly_map[dt][h]["total_sales"] += order["total_amount"]
+
+    hourly_sales = []
+    for dt in sorted(hourly_map.keys()):
+        for h in range(24):
+            d = hourly_map[dt].get(h)
+            if d:
+                hourly_sales.append({"date": dt, "hour": h, "order_count": d["order_count"], "total_sales": d["total_sales"]})
+
+    # === product_daily (상품-일별 집계) ===
+    pd_map = defaultdict(lambda: {"name": "", "orders": set(), "total_qty": 0, "total_amount": 0})
+    for line in order_lines:
+        pcode = line["product_code"]
+        pay_dt = line["payment_date"] or line["order_date"]
+        if not pcode or not pay_dt or pay_dt < "2000-01-01":
+            continue
+        key = (pay_dt, pcode)
+        p = pd_map[key]
+        p["name"] = line["product_name"]
+        p["orders"].add(line["order_no"])
+        p["total_qty"] += line["qty"]
+        p["total_amount"] += line["price_with_option"] * max(line["qty"], 1)
+
+    product_daily = [
+        {"date": k[0], "product_code": k[1], "product_name": p["name"],
+         "order_count": len(p["orders"]), "total_qty": p["total_qty"], "total_amount": p["total_amount"]}
+        for k, p in pd_map.items()
+    ]
+
     return {
         "daily_sales": daily_sales,
         "customers": customers,
         "customer_sales": customer_sales,
         "product_sales": product_sales,
         "orders": orders_list,
+        "hourly_sales": hourly_sales,
+        "product_daily": product_daily,
     }
 
 

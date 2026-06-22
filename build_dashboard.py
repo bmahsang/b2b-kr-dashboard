@@ -18,7 +18,7 @@ orders = data["orders"]
 cust_map = {}
 for c in customers:
     key = c["member_id"]
-    cust_map[key] = {**c, "total_sales": 0, "order_count": 0, "last_order_date": None}
+    cust_map[key] = {**c, "total_sales": 0, "order_count": 0, "last_order_date": None, "first_order_date": None}
 
 for cs in customer_sales:
     key = cs["member_id"]
@@ -26,16 +26,19 @@ for cs in customer_sales:
         cust_map[key]["total_sales"] = cs["total_sales"]
         cust_map[key]["order_count"] = cs["order_count"]
         cust_map[key]["last_order_date"] = cs["last_order_date"]
+        cust_map[key]["first_order_date"] = cs.get("first_order_date", "")
     else:
         cust_map[key] = {
             "member_id": cs["member_id"], "name": cs["name"],
             "grade": cs.get("grade", ""),
             "total_sales": cs["total_sales"],
             "order_count": cs["order_count"],
-            "last_order_date": cs["last_order_date"]
+            "last_order_date": cs["last_order_date"],
+            "first_order_date": cs.get("first_order_date", ""),
         }
 
 now = datetime.now()
+cutoff_date = (now - timedelta(days=60)).strftime("%Y-%m-%d")
 
 # RFM-based segment classification (no login data for godomall)
 def classify(c):
@@ -90,6 +93,7 @@ dashboard_data = {
         "total_sales": b["total_sales"],
         "order_count": b["order_count"],
         "last_order": (b.get("last_order_date", "") or "")[:10],
+        "first_order": (b.get("first_order_date", "") or "")[:10],
     } for b in buyer_list],
     "products": [{
         "name": p["product_name"],
@@ -99,6 +103,18 @@ dashboard_data = {
         "amount": p["total_amount"],
     } for p in products],
     "segment_counts": dict(seg_counts),
+    "orders": [{
+        "d": o["payment_date"] or o["order_date"],
+        "m": o["member_id"],
+        "a": o["total_amount"],
+    } for o in orders if (o.get("payment_date") or o.get("order_date","")) >= "2000-01-01"],
+    "hourly": [{
+        "d": h["date"], "h": h["hour"], "s": h["total_sales"], "c": h["order_count"],
+    } for h in data.get("hourly_sales", [])],
+    "product_daily": [{
+        "d": pd["date"], "c": pd["product_code"], "n": pd["product_name"][:30],
+        "o": pd["order_count"], "q": pd["total_qty"], "a": pd["total_amount"],
+    } for pd in data.get("product_daily", []) if pd["date"] >= cutoff_date],
 }
 
 data_json = json.dumps(dashboard_data, ensure_ascii=False)
