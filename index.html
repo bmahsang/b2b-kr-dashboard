@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BiteMe Analytics · B2B</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
   --accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;--accent-text:#1d4ed8;
@@ -344,6 +344,7 @@ function renderPartCards() {
 
 let hourlyChart;
 function renderHourlyChart() {
+  if (typeof Chart === 'undefined') return;
   const periodDates = curData.map(d=>d.date);
   const pStart = periodDates.length ? periodDates[periodDates.length-1] : '';
   const pEnd = periodDates.length ? periodDates[0] : '';
