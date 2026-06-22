@@ -123,21 +123,30 @@ def parse_xml_orders(xml_text):
     return order_lines
 
 
+def _fetch_and_parse(args):
+    s, e = args
+    xml = fetch_orders(s, e)
+    return parse_xml_orders(xml) if xml else []
+
+
 def crawl_all():
+    from concurrent.futures import ThreadPoolExecutor
     end = datetime.now()
     start = end - timedelta(days=DAYS_BACK)
-    all_lines = []
+    batches = []
     current = start
     while current <= end:
         chunk_end = min(current + timedelta(days=BATCH_DAYS - 1), end)
-        xml = fetch_orders(
+        batches.append((
             current.strftime("%Y-%m-%d 00:00:00"),
             chunk_end.strftime("%Y-%m-%d 23:59:59"),
-        )
-        if xml:
-            all_lines.extend(parse_xml_orders(xml))
+        ))
         current = chunk_end + timedelta(days=1)
-        time.sleep(0.2)
+
+    all_lines = []
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        for lines in pool.map(_fetch_and_parse, batches):
+            all_lines.extend(lines)
     return all_lines
 
 
