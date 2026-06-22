@@ -252,8 +252,6 @@ function calcMetrics() {
   const prevMonthSum=prevMonthSame.reduce((s,d)=>s+d.total_sales,0);
   mom=prevMonthSum?((monthSum-prevMonthSum)/prevMonthSum*100).toFixed(1):'0';
 }
-calcMetrics();
-
 function renderPeriodBtns() {
   document.getElementById('periodBtns').innerHTML = PERIODS.map(p =>
     `<button class="period-btn ${curPeriod===p.id?'active':''}" onclick="setPeriod('${p.id}')">${p.label}</button>`
