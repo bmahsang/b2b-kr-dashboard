@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -444,10 +444,8 @@ async function loadData(isRefresh) {
   }
 }
 
-window.addEventListener('DOMContentLoaded', function() {
-  loadData(false);
-  setInterval(function(){ loadData(true); }, 300000);
-});
+loadData(false);
+setInterval(function(){ loadData(true); }, 300000);
 </script>
 </body>
 </html>
