@@ -3,401 +3,623 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BiteMe Analytics · B2B</title>
-<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<title>BiteMe KR B2B Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;--accent-text:#1d4ed8;
-  --accent-bg:rgba(59,130,246,0.08);
+  --navy:#0f1923;--navy-mid:#1a2736;--sidebar-w:220px;
+  --accent:#4a90d9;--accent-hover:#3a7bc8;--accent-bg:rgba(74,144,217,0.08);
   --danger:#ef4444;--danger-bg:rgba(239,68,68,0.08);
   --warning:#f59e0b;--warning-bg:rgba(245,158,11,0.08);
   --success:#22c55e;--success-bg:rgba(34,197,94,0.08);
   --purple:#8b5cf6;--purple-bg:rgba(139,92,246,0.08);
-  --bg:#f9fafb;--card:#fff;--text:#111827;--text2:#6b7280;--text3:#9ca3af;--text4:#d1d5db;
-  --border:#e5e7eb;--radius:12px;
+  --bg:#f1f5f9;--card:#fff;--text:#1e293b;--text2:#64748b;--text3:#94a3b8;
+  --border:#e2e8f0;--radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,0.04),0 1px 2px rgba(0,0,0,0.06);
   --font:'Pretendard','Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 
-.header{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.header-inner{max-width:80rem;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media(min-width:640px){.header-inner{padding:14px 24px;gap:16px}}
-.header-left{display:flex;align-items:center;gap:16px}
-.header-logo{font-size:18px;font-weight:800;color:var(--text)}.header-logo span{color:var(--accent)}
-.header-sub{font-size:10px;color:var(--text3);margin-left:-8px}
-.header-right{display:flex;align-items:center;gap:8px}
-.period-btns{display:flex;gap:4px;flex-wrap:wrap}
-.period-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;background:#f3f4f6;color:var(--text2);border:none;transition:all .15s;white-space:nowrap}
-.period-btn:hover{background:#e5e7eb;color:#374151}
-.period-btn.active{background:var(--accent);color:#fff}
-.header-row2{max-width:80rem;margin:0 auto;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--border);background:#fff}
-@media(min-width:640px){.header-row2{padding:8px 24px}}
-.update-info{font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px}
-.update-info .time{font-size:12px;color:var(--text3)}
-.compare-bar{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text3)}
-.compare-bar span.label{margin-right:4px}
-.cmp-mode{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);border:1px solid var(--border);transition:all .15s}
-.cmp-mode:hover{background:#e5e7eb}.cmp-mode.active{background:var(--text);color:#fff;border-color:var(--text)}
-.cmp-preset{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;background:transparent;color:var(--accent);border:none;transition:all .15s}
-.cmp-preset:hover{background:var(--accent-light)}.cmp-preset.active{background:var(--accent);color:#fff}
-.period-badge{display:inline-block;font-size:11px;color:var(--text2);background:#f3f4f6;padding:4px 12px;border-radius:6px}
+.sidebar{width:var(--sidebar-w);background:var(--navy);color:#cbd5e1;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:200}
+.sidebar-hdr{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sidebar-logo{font-size:18px;font-weight:800;color:#fff}.sidebar-logo span{color:var(--accent)}
+.sidebar-sub{font-size:10px;color:#475569;margin-top:2px;letter-spacing:.5px}
+.sidebar-nav{flex:1;padding:10px 0;overflow-y:auto}
+.nav-sec{padding:8px 16px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#475569}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;cursor:pointer;border-left:3px solid transparent;color:#94a3b8;transition:.2s}
+.nav-item:hover{background:rgba(255,255,255,.04);color:#e2e8f0}
+.nav-item.active{background:rgba(74,144,217,.1);color:#fff;border-left-color:var(--accent)}
+.nav-item .badge{margin-left:auto;background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px}
+.sidebar-ft{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:#475569}
 
-.part-row{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:16px}
-@media(min-width:640px){.part-row{grid-template-columns:repeat(3,1fr);gap:16px}}
-.part-card{border-left:4px solid;border-radius:var(--radius);padding:16px 20px}
-.part-card.vvip{border-color:#f97316;background:#fff7ed}
-.part-card.existing{border-color:var(--accent);background:#eff6ff}
-.part-card.new-buyer{border-color:#10b981;background:#ecfdf5}
-.part-title{font-size:14px;font-weight:700;margin-bottom:12px}
-.part-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.part-metric .pm-label{font-size:11px;color:var(--text2)}
-.part-metric .pm-val{font-size:16px;font-weight:700;color:var(--text)}
-@media(min-width:640px){.part-metric .pm-val{font-size:18px}}
-.part-metric .pm-chg{font-size:11px;font-weight:600}
-.pm-chg.up{color:#ef4444}.pm-chg.down{color:#3b82f6}
-
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar h2{font-size:15px;font-weight:700}
+.topbar-meta{font-size:11px;color:var(--text3)}
+.topbar-r{display:flex;align-items:center;gap:10px}
 .btn{padding:6px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text);transition:.2s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.btn:hover{background:var(--bg)}.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn-primary:hover{background:var(--accent-hover)}.btn-sm{padding:4px 9px;font-size:10px}
-.btn-dark{background:var(--text);color:#fff;border-color:var(--text)}.btn-dark:hover{background:#374151}
+.btn:hover{background:var(--bg)}.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn-sm{padding:4px 9px;font-size:10px}
 
-.content{max-width:80rem;margin:0 auto;padding:16px}
-@media(min-width:640px){.content{padding:24px}}
-
-.kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
-@media(min-width:640px){.kpi-row{grid-template-columns:repeat(3,1fr);gap:16px}}
-@media(min-width:1024px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
-.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:2px}
-@media(min-width:640px){.kpi{padding:20px;gap:4px}}
-.kpi-label{font-size:12px;color:var(--text2)}
-@media(min-width:640px){.kpi-label{font-size:13px}}
-.kpi-val{font-size:18px;font-weight:700;color:var(--text)}
-@media(min-width:640px){.kpi-val{font-size:24px}}
-.kpi-sub{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:11px}
-.chg{font-weight:600;font-size:11px}
-.chg.up{color:#ef4444}.chg.down{color:#3b82f6}
+.content{padding:20px 24px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border:1px solid var(--border);border-top:3px solid var(--accent)}
+.kpi.green{border-top-color:var(--success)}.kpi.amber{border-top-color:var(--warning)}.kpi.red{border-top-color:var(--danger)}.kpi.purple{border-top-color:var(--purple)}
+.kpi-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kpi-val{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.kpi-sub{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:11px}
+.chg{font-weight:700;padding:2px 6px;border-radius:4px;font-size:10px}
+.chg.up{color:var(--success);background:var(--success-bg)}.chg.down{color:var(--danger);background:var(--danger-bg)}
 .kpi-desc{color:var(--text3);font-size:10px}
 
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.grid-73{display:grid;grid-template-columns:7fr 3fr;gap:16px;margin-bottom:16px}
-.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.grid-73{display:grid;grid-template-columns:7fr 3fr;gap:14px;margin-bottom:18px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
 .card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.card-hdr h3{font-size:14px;font-weight:700;color:#374151}.card-hdr .meta{font-size:11px;color:var(--text3)}
+.card-hdr h3{font-size:13px;font-weight:700}.card-hdr .meta{font-size:10px;color:var(--text3)}
 .card-body{padding:18px}.card-body.np{padding:0}
 .chart-w{position:relative;height:260px}
 .chart-sm{position:relative;height:200px}
 
 .seg-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--bg);margin-bottom:6px;cursor:pointer;transition:.2s}
-.seg-item:hover{background:#e5e7eb}
+.seg-item:hover{background:#e2e8f0}
+.seg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.seg-info{flex:1}.seg-name{font-size:12px;font-weight:600}.seg-desc{font-size:10px;color:var(--text3)}
+.seg-ct{font-size:15px;font-weight:800;text-align:right}.seg-pct{font-size:10px;color:var(--text3)}
+
+.ins{padding:12px 14px;border-radius:8px;border-left:4px solid;margin-bottom:8px}
+.ins.high{border-color:var(--danger);background:var(--danger-bg)}.ins.med{border-color:var(--warning);background:var(--warning-bg)}
+.ins.opp{border-color:var(--success);background:var(--success-bg)}.ins.low{border-color:var(--accent);background:var(--accent-bg)}
+.ins-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;color:#fff}
+.ins.high .ins-badge{background:var(--danger)}.ins.med .ins-badge{background:var(--warning)}.ins.opp .ins-badge{background:var(--success)}
+.ins-title{font-size:12px;font-weight:700;margin:4px 0 2px}.ins-desc{font-size:11px;color:var(--text2);line-height:1.5}
+
 table{width:100%;border-collapse:collapse}
 thead th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--text3);background:#fafbfc;border-bottom:1px solid var(--border);white-space:nowrap}
-tbody td{padding:8px 12px;font-size:12px;border-bottom:1px solid #f3f4f6}
-tbody tr:hover{background:#f9fafb}
+tbody td{padding:8px 12px;font-size:12px;border-bottom:1px solid #f1f5f9}
+tbody tr:hover{background:#f8fafc}
 
-@media(max-width:1024px){.grid-2,.grid-73{grid-template-columns:1fr}}
-@media(max-width:640px){.header-left{flex-wrap:wrap}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700}
+.badge-d{background:var(--danger-bg);color:var(--danger)}.badge-w{background:var(--warning-bg);color:#d97706}
+.badge-s{background:var(--success-bg);color:#16a34a}.badge-i{background:var(--accent-bg);color:var(--accent)}
+.badge-p{background:var(--purple-bg);color:var(--purple)}.badge-m{background:var(--bg);color:var(--text3)}
+.pri{font-weight:800;font-size:10px;padding:2px 7px;border-radius:4px;color:#fff}
+.pri.p0{background:var(--danger)}.pri.p1{background:var(--warning)}.pri.p2{background:var(--accent)}
 
-@keyframes spin{to{transform:rotate(360deg)}}
+.tabs{display:flex;border-bottom:2px solid var(--border);padding:0 18px;flex-wrap:wrap}
+.tab{padding:10px 14px;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap}
+.tab:hover{color:var(--text)}.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab .tb{margin-left:4px;font-size:9px;background:var(--bg);padding:1px 5px;border-radius:3px}
+
+.search-input{padding:6px 10px 6px 30px;border:1px solid var(--border);border-radius:7px;font-size:11px;outline:none;width:180px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 8px center}
+.search-input:focus{border-color:var(--accent)}
+.fg{display:flex;flex-direction:column;gap:2px}.fg label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.3px}
+.f-sel{padding:4px 6px;border:1px solid var(--border);border-radius:5px;font-size:11px;background:var(--card);color:var(--text);width:48px}
+.f-inp{padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:11px;width:72px;outline:none;background:var(--card);color:var(--text)}.f-inp:focus{border-color:var(--accent)}
+.f-u{font-size:10px;color:var(--text3);align-self:center}
+.preset{padding:6px 14px;border-radius:10px;font-size:11px;border:1px solid var(--border);background:var(--card);cursor:pointer;color:var(--text2);transition:all .15s;line-height:1.4}
+.preset:hover{border-color:var(--accent);color:var(--accent)}.preset.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.preset .p-desc{font-size:9px;opacity:.65;font-weight:400;display:block}.preset.active .p-desc{opacity:.85}
+.filter-count{font-size:11px;color:var(--accent);font-weight:600}
+
+.strip{background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:#fff;border-radius:var(--radius);padding:14px 24px;margin-bottom:18px;display:flex;align-items:center;gap:0;font-size:13px;line-height:1.5;flex-wrap:wrap}
+.strip strong{color:var(--accent)}
+.strip-item{padding:0 14px}.strip-item:first-child{padding-left:0}
+.strip-sep{color:#475569;font-size:11px;user-select:none}
+.strip-sub{font-size:11px;color:#94a3b8;margin-left:4px}
+
+.month-sel{padding:5px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;outline:none;background:#fff}
+.month-sel:focus{border-color:var(--accent)}
+.detail-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.detail-table{max-height:500px;overflow-y:auto}
+
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1024px){.grid-2,.grid-73{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.kpi-row{grid-template-columns:1fr}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+
+.lang-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:11px;font-weight:600}
+.lang-btn{padding:5px 10px;cursor:pointer;background:#fff;color:var(--text3);border:none;transition:.2s;display:flex;align-items:center;gap:3px}
+.lang-btn:first-child{border-right:1px solid var(--border)}
+.lang-btn:hover{background:var(--bg)}
+.lang-btn.active{background:var(--accent);color:#fff}
 </style>
 </head>
 <body>
+<div id="authGate" style="position:fixed;inset:0;z-index:9999;background:#0f1923;display:flex;align-items:center;justify-content:center">
+<div style="text-align:center">
+<div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:4px">Bite<span style="color:#4a90d9">Me</span> KR</div>
+<div style="font-size:11px;color:#475569;margin-bottom:24px;letter-spacing:.5px">B2B Sales Intelligence</div>
+<div><input type="password" id="authPw" placeholder="Password" autocomplete="off" style="padding:10px 16px;border:1px solid #334155;border-radius:8px;background:#1a2736;color:#fff;font-size:14px;width:240px;outline:none;text-align:center" onkeydown="if(event.key==='Enter')checkAuth()"></div>
+<button onclick="checkAuth()" style="margin-top:12px;padding:8px 36px;background:#4a90d9;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.3px">Login</button>
+<div id="authErr" style="color:#ef4444;font-size:11px;margin-top:10px;min-height:16px"></div>
+</div>
+</div>
+<script>
+function checkAuth(){var p=document.getElementById('authPw').value;if(p===''){document.getElementById('authGate').remove();sessionStorage.setItem('bkr_auth','1');}else{document.getElementById('authErr').textContent='\ube44\ubc00\ubc88\ud638\uac00 \ud2c0\ub9bd\ub2c8\ub2e4';document.getElementById('authPw').value='';}}
+if(sessionStorage.getItem('bkr_auth')==='1'){var g=document.getElementById('authGate');if(g)g.remove();}
+else{document.getElementById('authPw').focus();}
+</script>
 
-<header class="header">
-  <div class="header-inner">
-    <div class="header-left">
-      <h1 class="header-logo">B2B <span>고도몰</span></h1>
-    </div>
-    <div class="header-right">
-      <div class="period-btns" id="periodBtns"></div>
-      <button class="btn btn-dark" onclick="loadData(true)">새로고침</button>
+<aside class="sidebar">
+  <div class="sidebar-hdr"><div class="sidebar-logo">Bite<span>Me</span> KR</div><div class="sidebar-sub">B2B Sales Intelligence</div></div>
+  <nav class="sidebar-nav" id="sidebarNav"></nav>
+  <div class="sidebar-ft">
+    <div style="margin-top:3px">Powered by Claude Code</div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div><h2 id="topTitle"></h2><span class="topbar-meta" id="topMeta"></span></div>
+    <div class="topbar-r">
+      <span id="crawlTime" style="font-size:11px;color:#94a3b8;margin-right:12px"></span>
+      <button class="btn" onclick="exportCSV()">CSV</button>
     </div>
   </div>
-  <div class="header-row2">
-    <div class="update-info">
-      <strong id="periodLabel">이번주</strong>
-      <span class="time">마지막 업데이트 <span id="crawlTime"></span></span>
-    </div>
-    <div class="compare-bar">
-      <span class="label">비교:</span>
-      <button class="cmp-mode active" onclick="setCmpMode('preset')">프리셋</button>
-      <button class="cmp-mode" onclick="setCmpMode('off')">끄기</button>
-      <span style="width:8px"></span>
-      <div id="cmpPresets">
-        <button class="cmp-preset active" onclick="setCmpPreset('prev')">전기간</button>
-        <button class="cmp-preset" onclick="setCmpPreset('prevWeek')">전주</button>
-        <button class="cmp-preset" onclick="setCmpPreset('prevMonth')">전월</button>
+  <div class="content">
+    <div id="pageDash">
+      <div class="strip" id="summaryStrip"></div>
+      <div class="kpi-row" id="kpiRow"></div>
+      <div class="grid-73">
+        <div class="card"><div class="card-hdr"><h3 id="hdrTrend"></h3><div class="meta" id="hdrTrendMeta"></div></div><div class="card-body"><div class="chart-w"><canvas id="salesChart"></canvas></div></div></div>
+        <div class="card"><div class="card-hdr"><h3 id="hdrSeg"></h3><div class="meta" id="totalBuyers"></div></div><div class="card-body"><div class="chart-sm"><canvas id="segChart"></canvas></div><div id="segList" style="margin-top:12px"></div></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-hdr"><h3 id="hdrInsight"></h3><div class="meta" id="insCnt"></div></div><div class="card-body" id="insCards"></div></div>
+        <div class="card" id="actionCard"><div class="card-hdr"><h3 id="hdrAction"></h3></div><div class="card-body np" id="actionBody"></div></div>
       </div>
     </div>
-  </div>
-</header>
-
-<div class="content">
-<div id="loadingOverlay" style="position:fixed;inset:0;background:rgba(255,255,255,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999"><div style="width:36px;height:36px;border:3px solid #e5e7eb;border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="margin-top:12px;font-size:13px;color:#6b7280" id="loadingText">데이터 로딩 중...</div></div>
-    <div id="pageDash">
-      <div id="periodBadge"></div>
-      <div class="kpi-row" id="kpiRow"></div>
-      <div class="part-row" id="partRow"></div>
-      <div class="card" style="margin-bottom:16px"><div class="card-hdr"><h3>시간대별 매출 현황</h3></div><div class="card-body"><div class="chart-w"><canvas id="hourlyChart"></canvas></div></div></div>
-      <div class="card"><div class="card-hdr"><h3>상품 랭킹 TOP 20</h3><div class="meta" id="prodRankMeta"></div></div><div class="card-body np" style="max-height:600px;overflow-y:auto"><table><thead id="prodRankHead"></thead><tbody id="prodRankBody"></tbody></table></div></div>
+    <div id="pageSku" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="lang-toggle" id="skuPeriodToggle">
+          <button class="lang-btn active" data-period="all" onclick="setSkuPeriod('all')">전체</button>
+          <button class="lang-btn" data-period="month" onclick="setSkuPeriod('month')">월간</button>
+          <button class="lang-btn" data-period="week" onclick="setSkuPeriod('week')">주간</button>
+        </div>
+        <select class="month-sel" id="skuMonthSelect" onchange="renderSKU()" style="display:none"></select>
+        <span style="color:var(--text3);font-size:11px" id="skuPeriodLabel"></span>
+        <div style="flex:1"></div>
+        <div class="lang-toggle" id="skuSortToggle">
+          <button class="lang-btn active" data-sort="orders" onclick="setSkuSort('orders')">수주건수</button>
+          <button class="lang-btn" data-sort="qty" onclick="setSkuSort('qty')">수량</button>
+          <button class="lang-btn" data-sort="amount" onclick="setSkuSort('amount')">매출액</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><h3 id="hdrSku"></h3><div class="meta" id="hdrSkuMeta"></div></div>
+        <div class="card-body np" style="max-height:calc(100vh - 220px);overflow-y:auto">
+          <table><thead id="skuThead"></thead><tbody id="skuTbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+    <div id="pageBuyers" style="display:none">
+      <div class="card" id="buyerCard">
+        <div class="tabs" id="btabs"></div>
+        <div id="filterPanel" style="padding:12px 18px;border-bottom:1px solid var(--border);background:var(--bg)">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="filterPresets"></div>
+          <div id="filterControls" style="display:none">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+              <div class="fg"><label>수주 건수</label><div style="display:flex;gap:4px"><select id="fOrdOp" class="f-sel"><option value="gte">&ge;</option><option value="lte">&le;</option><option value="eq">=</option></select><input type="number" id="fOrdVal" class="f-inp" placeholder="3"><span class="f-u">건</span></div></div>
+              <div class="fg"><label>수주 총액</label><div style="display:flex;gap:4px"><select id="fSalesOp" class="f-sel"><option value="gte">&ge;</option><option value="lte">&le;</option></select><input type="number" id="fSalesVal" class="f-inp" placeholder="500000"><span class="f-u">원</span></div></div>
+              <div class="fg"><label>최종 수주</label><div style="display:flex;gap:4px"><select id="fLastOp" class="f-sel"><option value="lte">&le;</option><option value="gte">&ge;</option></select><input type="number" id="fLastDays" class="f-inp" placeholder="30"><span class="f-u">일 전</span></div></div>
+              <button class="btn btn-primary btn-sm" onclick="applyFilter()">검색</button>
+              <button class="btn btn-sm" onclick="clearFilter()">초기화</button>
+            </div>
+          </div>
+        </div>
+        <div id="buyerToolbar" style="padding:10px 18px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center"></div>
+        <div style="max-height:calc(100vh - 280px);overflow-y:auto">
+          <table><thead id="buyerThead"></thead><tbody id="buyerTbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+    <div id="pageDetail" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <select class="month-sel" id="monthSelect" onchange="renderDetail()"></select>
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="btnDaily" onclick="setDetailMode('daily')">일간</button>
+          <button class="lang-btn" id="btnWeekly" onclick="setDetailMode('weekly')">주간</button>
+        </div>
+        <button class="btn btn-sm" onclick="exportMonthCSV()">월간 CSV</button>
+      </div>
+      <div class="detail-kpi-row" id="detailKpiRow"></div>
+      <div class="card" style="margin-bottom:18px"><div class="card-hdr"><h3>매출 차트</h3></div><div class="card-body"><div class="chart-w"><canvas id="detailChart"></canvas></div></div></div>
+      <div class="card"><div class="card-hdr"><h3>명세</h3></div><div class="card-body np detail-table"><table><thead id="detailThead"></thead><tbody id="detailTbody"></tbody></table></div></div>
     </div>
   </div>
+</div>
 
 <script>
-let D = null;
-let ds = [];
-let latestDate = '';
-let curPeriod='today';
-let compareMode='preset';
-let cmpPreset='prev';
-let sum7,sump7,wow,ord7,ordp7,wowOrd,aov,aovp,wowAov,periodLabel,periodDateRange;
-let curYM,monthSum,monthOrd,mom,prevYM;
-let curData=[],prevData=[];
+const D = {"crawl_meta": {"crawled_at": "2026-06-23T01:57:49.981395", "source": "godomall-openhub-api", "mode": "incremental"}, "daily_sales": [{"date": "2026-06-22", "order_count": 23, "product_kinds": 83, "product_total_qty": 430, "min_order": 100480, "max_order": 331100, "avg_order": 159369, "total_sales": 3665494}, {"date": "2026-06-21", "order_count": 11, "product_kinds": 40, "product_total_qty": 131, "min_order": 104353, "max_order": 272920, "avg_order": 172353, "total_sales": 1895880}, {"date": "2026-06-20", "order_count": 8, "product_kinds": 47, "product_total_qty": 92, "min_order": 101795, "max_order": 275623, "avg_order": 148906, "total_sales": 1191252}, {"date": "2026-06-19", "order_count": 16, "product_kinds": 62, "product_total_qty": 234, "min_order": 100340, "max_order": 380379, "avg_order": 195786, "total_sales": 3132572}, {"date": "2026-06-18", "order_count": 25, "product_kinds": 104, "product_total_qty": 460, "min_order": 110670, "max_order": 620216, "avg_order": 232307, "total_sales": 5807683}, {"date": "2026-06-17", "order_count": 33, "product_kinds": 110, "product_total_qty": 714, "min_order": 102150, "max_order": 1041453, "avg_order": 267313, "total_sales": 8821325}, {"date": "2026-06-16", "order_count": 26, "product_kinds": 85, "product_total_qty": 351, "min_order": 101916, "max_order": 582301, "avg_order": 213992, "total_sales": 5563797}, {"date": "2026-06-15", "order_count": 25, "product_kinds": 91, "product_total_qty": 449, "min_order": 100330, "max_order": 704857, "avg_order": 243525, "total_sales": 6088117}, {"date": "2026-06-14", "order_count": 16, "product_kinds": 51, "product_total_qty": 204, "min_order": 100900, "max_order": 439920, "avg_order": 170597, "total_sales": 2729549}, {"date": "2026-06-13", "order_count": 7, "product_kinds": 19, "product_total_qty": 133, "min_order": 110590, "max_order": 525530, "avg_order": 226403, "total_sales": 1584819}, {"date": "2026-06-12", "order_count": 19, "product_kinds": 61, "product_total_qty": 261, "min_order": 101605, "max_order": 921698, "avg_order": 221672, "total_sales": 4211767}, {"date": "2026-06-11", "order_count": 18, "product_kinds": 75, "product_total_qty": 309, "min_order": 100202, "max_order": 373814, "avg_order": 170923, "total_sales": 3076612}, {"date": "2026-06-10", "order_count": 27, "product_kinds": 78, "product_total_qty": 351, "min_order": 100000, "max_order": 751409, "avg_order": 173569, "total_sales": 4686376}, {"date": "2026-06-09", "order_count": 26, "product_kinds": 94, "product_total_qty": 323, "min_order": 100450, "max_order": 371020, "avg_order": 162728, "total_sales": 4230932}, {"date": "2026-06-08", "order_count": 41, "product_kinds": 125, "product_total_qty": 731, "min_order": 100824, "max_order": 899600, "avg_order": 221715, "total_sales": 9090298}, {"date": "2026-06-07", "order_count": 18, "product_kinds": 61, "product_total_qty": 317, "min_order": 100993, "max_order": 619420, "avg_order": 209233, "total_sales": 3766198}, {"date": "2026-06-06", "order_count": 8, "product_kinds": 28, "product_total_qty": 133, "min_order": 102050, "max_order": 418860, "avg_order": 173532, "total_sales": 1388255}, {"date": "2026-06-05", "order_count": 27, "product_kinds": 90, "product_total_qty": 427, "min_order": 103950, "max_order": 453277, "avg_order": 190636, "total_sales": 5147174}, {"date": "2026-06-04", "order_count": 34, "product_kinds": 125, "product_total_qty": 741, "min_order": 102110, "max_order": 1322006, "avg_order": 252560, "total_sales": 8587046}, {"date": "2026-06-03", "order_count": 11, "product_kinds": 39, "product_total_qty": 253, "min_order": 103377, "max_order": 1450279, "avg_order": 323438, "total_sales": 3557816}, {"date": "2026-06-02", "order_count": 19, "product_kinds": 77, "product_total_qty": 326, "min_order": 102860, "max_order": 582581, "avg_order": 209920, "total_sales": 3988477}, {"date": "2026-06-01", "order_count": 27, "product_kinds": 111, "product_total_qty": 584, "min_order": 102950, "max_order": 843541, "avg_order": 285168, "total_sales": 7699541}, {"date": "2026-05-31", "order_count": 6, "product_kinds": 23, "product_total_qty": 68, "min_order": 100185, "max_order": 204882, "avg_order": 129617, "total_sales": 777704}, {"date": "2026-05-30", "order_count": 10, "product_kinds": 31, "product_total_qty": 125, "min_order": 101328, "max_order": 240811, "avg_order": 163572, "total_sales": 1635719}, {"date": "2026-05-29", "order_count": 8, "product_kinds": 51, "product_total_qty": 236, "min_order": 100000, "max_order": 1096549, "avg_order": 338416, "total_sales": 2707326}, {"date": "2026-05-28", "order_count": 24, "product_kinds": 83, "product_total_qty": 397, "min_order": 100544, "max_order": 365251, "avg_order": 164259, "total_sales": 3942222}, {"date": "2026-05-27", "order_count": 21, "product_kinds": 67, "product_total_qty": 501, "min_order": 100000, "max_order": 394965, "avg_order": 178750, "total_sales": 3753745}, {"date": "2026-05-26", "order_count": 35, "product_kinds": 127, "product_total_qty": 690, "min_order": 100568, "max_order": 747416, "avg_order": 224166, "total_sales": 7845818}, {"date": "2026-05-25", "order_count": 21, "product_kinds": 74, "product_total_qty": 350, "min_order": 100270, "max_order": 1155692, "avg_order": 256864, "total_sales": 5394147}, {"date": "2026-05-24", "order_count": 7, "product_kinds": 34, "product_total_qty": 133, "min_order": 100000, "max_order": 233000, "avg_order": 151032, "total_sales": 1057227}, {"date": "2026-05-23", "order_count": 8, "product_kinds": 25, "product_total_qty": 90, "min_order": 102800, "max_order": 286200, "avg_order": 155776, "total_sales": 1246209}, {"date": "2026-05-22", "order_count": 19, "product_kinds": 59, "product_total_qty": 391, "min_order": 100000, "max_order": 955047, "avg_order": 183403, "total_sales": 3484658}, {"date": "2026-05-21", "order_count": 20, "product_kinds": 82, "product_total_qty": 537, "min_order": 101357, "max_order": 468772, "avg_order": 221737, "total_sales": 4434740}, {"date": "2026-05-20", "order_count": 15, "product_kinds": 52, "product_total_qty": 241, "min_order": 101914, "max_order": 185606, "avg_order": 126167, "total_sales": 1892512}, {"date": "2026-05-19", "order_count": 24, "product_kinds": 97, "product_total_qty": 515, "min_order": 101280, "max_order": 570756, "avg_order": 184460, "total_sales": 4427030}, {"date": "2026-05-18", "order_count": 18, "product_kinds": 78, "product_total_qty": 302, "min_order": 100000, "max_order": 258440, "avg_order": 145681, "total_sales": 2622255}, {"date": "2026-05-17", "order_count": 9, "product_kinds": 33, "product_total_qty": 128, "min_order": 100000, "max_order": 388467, "avg_order": 178358, "total_sales": 1605220}, {"date": "2026-05-16", "order_count": 13, "product_kinds": 50, "product_total_qty": 257, "min_order": 100580, "max_order": 918939, "avg_order": 256877, "total_sales": 3339405}, {"date": "2026-05-15", "order_count": 17, "product_kinds": 73, "product_total_qty": 338, "min_order": 103100, "max_order": 438809, "avg_order": 167680, "total_sales": 2850552}, {"date": "2026-05-14", "order_count": 20, "product_kinds": 78, "product_total_qty": 306, "min_order": 100000, "max_order": 690364, "avg_order": 204231, "total_sales": 4084618}, {"date": "2026-05-13", "order_count": 19, "product_kinds": 58, "product_total_qty": 318, "min_order": 100000, "max_order": 343573, "avg_order": 163528, "total_sales": 3107037}, {"date": "2026-05-12", "order_count": 20, "product_kinds": 68, "product_total_qty": 310, "min_order": 103360, "max_order": 398360, "avg_order": 175911, "total_sales": 3518223}, {"date": "2026-05-11", "order_count": 32, "product_kinds": 122, "product_total_qty": 656, "min_order": 100090, "max_order": 591445, "avg_order": 207475, "total_sales": 6639207}, {"date": "2026-05-10", "order_count": 13, "product_kinds": 71, "product_total_qty": 335, "min_order": 100090, "max_order": 349865, "avg_order": 170808, "total_sales": 2220504}, {"date": "2026-05-09", "order_count": 1, "product_kinds": 10, "product_total_qty": 50, "min_order": 525736, "max_order": 525736, "avg_order": 525736, "total_sales": 525736}, {"date": "2026-05-08", "order_count": 7, "product_kinds": 47, "product_total_qty": 131, "min_order": 103440, "max_order": 327502, "avg_order": 152780, "total_sales": 1069460}, {"date": "2026-05-07", "order_count": 24, "product_kinds": 83, "product_total_qty": 501, "min_order": 100710, "max_order": 601972, "avg_order": 217447, "total_sales": 5218719}, {"date": "2026-05-06", "order_count": 43, "product_kinds": 155, "product_total_qty": 1022, "min_order": 100000, "max_order": 501600, "avg_order": 188391, "total_sales": 8100833}, {"date": "2026-05-05", "order_count": 13, "product_kinds": 79, "product_total_qty": 377, "min_order": 100080, "max_order": 785755, "avg_order": 298251, "total_sales": 3877264}, {"date": "2026-05-04", "order_count": 22, "product_kinds": 74, "product_total_qty": 334, "min_order": 101000, "max_order": 556445, "avg_order": 169388, "total_sales": 3726538}, {"date": "2026-05-03", "order_count": 11, "product_kinds": 46, "product_total_qty": 258, "min_order": 120000, "max_order": 696470, "avg_order": 243080, "total_sales": 2673881}, {"date": "2026-05-02", "order_count": 11, "product_kinds": 49, "product_total_qty": 168, "min_order": 100520, "max_order": 355653, "avg_order": 158381, "total_sales": 1742188}, {"date": "2026-05-01", "order_count": 7, "product_kinds": 48, "product_total_qty": 213, "min_order": 100917, "max_order": 679172, "avg_order": 300418, "total_sales": 2102926}, {"date": "2026-04-30", "order_count": 17, "product_kinds": 66, "product_total_qty": 268, "min_order": 100394, "max_order": 525730, "avg_order": 180980, "total_sales": 3076657}, {"date": "2026-04-29", "order_count": 27, "product_kinds": 69, "product_total_qty": 472, "min_order": 100007, "max_order": 388140, "avg_order": 156017, "total_sales": 4212448}, {"date": "2026-04-28", "order_count": 29, "product_kinds": 119, "product_total_qty": 748, "min_order": 100414, "max_order": 1883554, "avg_order": 262804, "total_sales": 7621305}, {"date": "2026-04-27", "order_count": 38, "product_kinds": 107, "product_total_qty": 688, "min_order": 100100, "max_order": 564925, "avg_order": 183223, "total_sales": 6962486}, {"date": "2026-04-26", "order_count": 13, "product_kinds": 48, "product_total_qty": 235, "min_order": 100122, "max_order": 370890, "avg_order": 198869, "total_sales": 2585294}, {"date": "2026-04-25", "order_count": 7, "product_kinds": 41, "product_total_qty": 140, "min_order": 107570, "max_order": 722517, "avg_order": 308378, "total_sales": 2158643}, {"date": "2026-04-24", "order_count": 25, "product_kinds": 95, "product_total_qty": 388, "min_order": 102505, "max_order": 518695, "avg_order": 203571, "total_sales": 5089280}, {"date": "2026-04-23", "order_count": 28, "product_kinds": 72, "product_total_qty": 493, "min_order": 100106, "max_order": 744121, "avg_order": 199475, "total_sales": 5585294}, {"date": "2026-04-22", "order_count": 22, "product_kinds": 49, "product_total_qty": 503, "min_order": 100933, "max_order": 732080, "avg_order": 205587, "total_sales": 4522914}, {"date": "2026-04-21", "order_count": 46, "product_kinds": 124, "product_total_qty": 1301, "min_order": 100365, "max_order": 1943581, "avg_order": 273411, "total_sales": 12576920}, {"date": "2026-04-20", "order_count": 96, "product_kinds": 94, "product_total_qty": 3149, "min_order": 100075, "max_order": 2456495, "avg_order": 340230, "total_sales": 32662059}, {"date": "2026-04-19", "order_count": 10, "product_kinds": 46, "product_total_qty": 118, "min_order": 102082, "max_order": 276050, "avg_order": 163647, "total_sales": 1636470}, {"date": "2026-04-18", "order_count": 3, "product_kinds": 13, "product_total_qty": 37, "min_order": 101420, "max_order": 106260, "avg_order": 104607, "total_sales": 313822}, {"date": "2026-04-17", "order_count": 11, "product_kinds": 60, "product_total_qty": 203, "min_order": 103870, "max_order": 371070, "avg_order": 215010, "total_sales": 2365111}, {"date": "2026-04-16", "order_count": 19, "product_kinds": 70, "product_total_qty": 369, "min_order": 104055, "max_order": 521652, "avg_order": 205592, "total_sales": 3906253}, {"date": "2026-04-15", "order_count": 10, "product_kinds": 27, "product_total_qty": 176, "min_order": 105343, "max_order": 263128, "avg_order": 155458, "total_sales": 1554583}, {"date": "2026-04-14", "order_count": 20, "product_kinds": 89, "product_total_qty": 323, "min_order": 100640, "max_order": 551399, "avg_order": 177127, "total_sales": 3542538}, {"date": "2026-04-13", "order_count": 14, "product_kinds": 81, "product_total_qty": 367, "min_order": 103196, "max_order": 1423080, "avg_order": 252905, "total_sales": 3540674}, {"date": "2026-04-12", "order_count": 8, "product_kinds": 24, "product_total_qty": 81, "min_order": 105890, "max_order": 902170, "avg_order": 215504, "total_sales": 1724030}, {"date": "2026-04-11", "order_count": 8, "product_kinds": 42, "product_total_qty": 108, "min_order": 103371, "max_order": 459460, "avg_order": 186827, "total_sales": 1494615}, {"date": "2026-04-10", "order_count": 7, "product_kinds": 22, "product_total_qty": 67, "min_order": 102100, "max_order": 318900, "avg_order": 177367, "total_sales": 1241570}, {"date": "2026-04-09", "order_count": 12, "product_kinds": 71, "product_total_qty": 249, "min_order": 100081, "max_order": 1339001, "avg_order": 251929, "total_sales": 3023151}, {"date": "2026-04-08", "order_count": 22, "product_kinds": 75, "product_total_qty": 348, "min_order": 101910, "max_order": 350780, "avg_order": 161270, "total_sales": 3547949}, {"date": "2026-04-07", "order_count": 19, "product_kinds": 78, "product_total_qty": 331, "min_order": 100000, "max_order": 594440, "avg_order": 211663, "total_sales": 4021605}, {"date": "2026-04-06", "order_count": 24, "product_kinds": 109, "product_total_qty": 534, "min_order": 100710, "max_order": 1732201, "avg_order": 260065, "total_sales": 6241570}, {"date": "2026-04-05", "order_count": 9, "product_kinds": 74, "product_total_qty": 169, "min_order": 105560, "max_order": 394682, "avg_order": 238475, "total_sales": 2146273}, {"date": "2026-04-04", "order_count": 8, "product_kinds": 38, "product_total_qty": 140, "min_order": 100000, "max_order": 331820, "avg_order": 155075, "total_sales": 1240603}, {"date": "2026-04-03", "order_count": 12, "product_kinds": 60, "product_total_qty": 302, "min_order": 100750, "max_order": 681643, "avg_order": 198059, "total_sales": 2376707}, {"date": "2026-04-02", "order_count": 20, "product_kinds": 92, "product_total_qty": 445, "min_order": 100398, "max_order": 1272596, "avg_order": 247116, "total_sales": 4942314}, {"date": "2026-04-01", "order_count": 18, "product_kinds": 70, "product_total_qty": 428, "min_order": 100149, "max_order": 1239240, "avg_order": 237101, "total_sales": 4267814}, {"date": "2026-03-31", "order_count": 17, "product_kinds": 62, "product_total_qty": 193, "min_order": 101080, "max_order": 364670, "avg_order": 158750, "total_sales": 2698758}, {"date": "2026-03-30", "order_count": 16, "product_kinds": 98, "product_total_qty": 329, "min_order": 103000, "max_order": 532948, "avg_order": 203380, "total_sales": 3254087}, {"date": "2026-03-29", "order_count": 16, "product_kinds": 76, "product_total_qty": 277, "min_order": 100204, "max_order": 1175964, "avg_order": 269369, "total_sales": 4309909}, {"date": "2026-03-28", "order_count": 9, "product_kinds": 38, "product_total_qty": 122, "min_order": 103243, "max_order": 381810, "avg_order": 153409, "total_sales": 1380682}, {"date": "2026-03-27", "order_count": 12, "product_kinds": 46, "product_total_qty": 218, "min_order": 100000, "max_order": 992570, "avg_order": 252425, "total_sales": 3029104}, {"date": "2026-03-26", "order_count": 15, "product_kinds": 88, "product_total_qty": 417, "min_order": 102636, "max_order": 1110255, "avg_order": 253741, "total_sales": 3806121}, {"date": "2026-03-25", "order_count": 12, "product_kinds": 50, "product_total_qty": 178, "min_order": 106800, "max_order": 222136, "avg_order": 147845, "total_sales": 1774135}, {"date": "2026-03-24", "order_count": 15, "product_kinds": 99, "product_total_qty": 275, "min_order": 104580, "max_order": 641353, "avg_order": 230911, "total_sales": 3463660}, {"date": "2026-03-23", "order_count": 28, "product_kinds": 103, "product_total_qty": 448, "min_order": 100500, "max_order": 652528, "avg_order": 191548, "total_sales": 5363350}, {"date": "2026-03-22", "order_count": 8, "product_kinds": 32, "product_total_qty": 83, "min_order": 102392, "max_order": 306040, "avg_order": 170389, "total_sales": 1363109}, {"date": "2026-03-21", "order_count": 5, "product_kinds": 20, "product_total_qty": 83, "min_order": 101340, "max_order": 156082, "avg_order": 118480, "total_sales": 592400}, {"date": "2026-03-20", "order_count": 15, "product_kinds": 86, "product_total_qty": 303, "min_order": 101539, "max_order": 852832, "avg_order": 191807, "total_sales": 2877106}, {"date": "2026-03-19", "order_count": 16, "product_kinds": 54, "product_total_qty": 261, "min_order": 100170, "max_order": 965294, "avg_order": 215428, "total_sales": 3446850}, {"date": "2026-03-18", "order_count": 15, "product_kinds": 51, "product_total_qty": 196, "min_order": 100090, "max_order": 270340, "avg_order": 148456, "total_sales": 2226841}, {"date": "2026-03-17", "order_count": 23, "product_kinds": 127, "product_total_qty": 531, "min_order": 100150, "max_order": 627672, "avg_order": 202910, "total_sales": 4666925}, {"date": "2026-03-16", "order_count": 20, "product_kinds": 69, "product_total_qty": 190, "min_order": 100520, "max_order": 312660, "avg_order": 146875, "total_sales": 2937491}, {"date": "2026-03-15", "order_count": 13, "product_kinds": 55, "product_total_qty": 234, "min_order": 102584, "max_order": 877571, "avg_order": 209206, "total_sales": 2719677}, {"date": "2026-03-14", "order_count": 7, "product_kinds": 37, "product_total_qty": 124, "min_order": 101490, "max_order": 261090, "avg_order": 182381, "total_sales": 1276664}, {"date": "2026-03-13", "order_count": 17, "product_kinds": 64, "product_total_qty": 240, "min_order": 100000, "max_order": 478944, "avg_order": 164411, "total_sales": 2794992}, {"date": "2026-03-12", "order_count": 26, "product_kinds": 105, "product_total_qty": 362, "min_order": 100330, "max_order": 384111, "avg_order": 176104, "total_sales": 4578693}, {"date": "2026-03-11", "order_count": 11, "product_kinds": 58, "product_total_qty": 207, "min_order": 100800, "max_order": 772031, "avg_order": 240904, "total_sales": 2649944}, {"date": "2026-03-10", "order_count": 20, "product_kinds": 85, "product_total_qty": 496, "min_order": 100110, "max_order": 706580, "avg_order": 188341, "total_sales": 3766813}, {"date": "2026-03-09", "order_count": 22, "product_kinds": 77, "product_total_qty": 652, "min_order": 100045, "max_order": 343735, "avg_order": 158642, "total_sales": 3490119}, {"date": "2026-03-08", "order_count": 9, "product_kinds": 38, "product_total_qty": 150, "min_order": 100710, "max_order": 227590, "avg_order": 141312, "total_sales": 1271810}, {"date": "2026-03-07", "order_count": 8, "product_kinds": 50, "product_total_qty": 172, "min_order": 102229, "max_order": 197915, "avg_order": 136902, "total_sales": 1095213}, {"date": "2026-03-06", "order_count": 29, "product_kinds": 111, "product_total_qty": 949, "min_order": 100000, "max_order": 1007391, "avg_order": 231349, "total_sales": 6709114}, {"date": "2026-03-05", "order_count": 24, "product_kinds": 111, "product_total_qty": 482, "min_order": 100000, "max_order": 701893, "avg_order": 213691, "total_sales": 5128592}, {"date": "2026-03-04", "order_count": 24, "product_kinds": 103, "product_total_qty": 655, "min_order": 101750, "max_order": 1106745, "avg_order": 234778, "total_sales": 5634684}, {"date": "2026-03-03", "order_count": 28, "product_kinds": 88, "product_total_qty": 520, "min_order": 101210, "max_order": 831852, "avg_order": 214877, "total_sales": 6016561}, {"date": "2026-03-02", "order_count": 15, "product_kinds": 61, "product_total_qty": 270, "min_order": 100560, "max_order": 946821, "avg_order": 210993, "total_sales": 3164899}, {"date": "2026-03-01", "order_count": 6, "product_kinds": 33, "product_total_qty": 111, "min_order": 104145, "max_order": 254210, "avg_order": 164779, "total_sales": 988673}, {"date": "2026-02-28", "order_count": 10, "product_kinds": 51, "product_total_qty": 124, "min_order": 104720, "max_order": 407670, "avg_order": 157417, "total_sales": 1574171}, {"date": "2026-02-27", "order_count": 12, "product_kinds": 57, "product_total_qty": 191, "min_order": 100482, "max_order": 563947, "avg_order": 178882, "total_sales": 2146587}, {"date": "2026-02-26", "order_count": 17, "product_kinds": 71, "product_total_qty": 228, "min_order": 102362, "max_order": 300000, "avg_order": 151931, "total_sales": 2582835}, {"date": "2026-02-25", "order_count": 15, "product_kinds": 63, "product_total_qty": 363, "min_order": 102027, "max_order": 509555, "avg_order": 250952, "total_sales": 3764275}, {"date": "2026-02-24", "order_count": 18, "product_kinds": 77, "product_total_qty": 303, "min_order": 100478, "max_order": 468080, "avg_order": 193287, "total_sales": 3479166}, {"date": "2026-02-23", "order_count": 28, "product_kinds": 110, "product_total_qty": 557, "min_order": 100200, "max_order": 632760, "avg_order": 216560, "total_sales": 6063691}, {"date": "2026-02-22", "order_count": 13, "product_kinds": 58, "product_total_qty": 266, "min_order": 113693, "max_order": 1053516, "avg_order": 242756, "total_sales": 3155829}, {"date": "2026-02-21", "order_count": 6, "product_kinds": 22, "product_total_qty": 91, "min_order": 103840, "max_order": 226929, "avg_order": 148241, "total_sales": 889447}, {"date": "2026-02-20", "order_count": 16, "product_kinds": 60, "product_total_qty": 300, "min_order": 100841, "max_order": 586494, "avg_order": 186074, "total_sales": 2977190}, {"date": "2026-02-19", "order_count": 33, "product_kinds": 103, "product_total_qty": 559, "min_order": 100000, "max_order": 556106, "avg_order": 197733, "total_sales": 6525179}, {"date": "2026-02-18", "order_count": 4, "product_kinds": 19, "product_total_qty": 63, "min_order": 106502, "max_order": 172217, "avg_order": 135149, "total_sales": 540595}, {"date": "2026-02-17", "order_count": 5, "product_kinds": 16, "product_total_qty": 90, "min_order": 105114, "max_order": 299719, "avg_order": 152078, "total_sales": 760388}, {"date": "2026-02-16", "order_count": 6, "product_kinds": 23, "product_total_qty": 97, "min_order": 101292, "max_order": 359875, "avg_order": 171452, "total_sales": 1028715}, {"date": "2026-02-15", "order_count": 4, "product_kinds": 16, "product_total_qty": 62, "min_order": 105157, "max_order": 219276, "avg_order": 142030, "total_sales": 568121}, {"date": "2026-02-14", "order_count": 5, "product_kinds": 27, "product_total_qty": 102, "min_order": 101540, "max_order": 405519, "avg_order": 220937, "total_sales": 1104685}, {"date": "2026-02-13", "order_count": 11, "product_kinds": 50, "product_total_qty": 157, "min_order": 101240, "max_order": 255034, "avg_order": 144535, "total_sales": 1589882}, {"date": "2026-02-12", "order_count": 7, "product_kinds": 33, "product_total_qty": 141, "min_order": 100153, "max_order": 541709, "avg_order": 205438, "total_sales": 1438066}, {"date": "2026-02-11", "order_count": 18, "product_kinds": 111, "product_total_qty": 448, "min_order": 101043, "max_order": 776221, "avg_order": 259952, "total_sales": 4679133}, {"date": "2026-02-10", "order_count": 26, "product_kinds": 119, "product_total_qty": 461, "min_order": 100120, "max_order": 595294, "avg_order": 179361, "total_sales": 4663396}, {"date": "2026-02-09", "order_count": 31, "product_kinds": 133, "product_total_qty": 819, "min_order": 100000, "max_order": 1237775, "avg_order": 264254, "total_sales": 8191875}, {"date": "2026-02-08", "order_count": 8, "product_kinds": 23, "product_total_qty": 98, "min_order": 100210, "max_order": 290550, "avg_order": 142721, "total_sales": 1141768}, {"date": "2026-02-07", "order_count": 3, "product_kinds": 22, "product_total_qty": 92, "min_order": 111940, "max_order": 241291, "avg_order": 190175, "total_sales": 570526}, {"date": "2026-02-06", "order_count": 17, "product_kinds": 82, "product_total_qty": 347, "min_order": 100329, "max_order": 769477, "avg_order": 221221, "total_sales": 3760755}, {"date": "2026-02-05", "order_count": 17, "product_kinds": 75, "product_total_qty": 430, "min_order": 100000, "max_order": 855820, "avg_order": 197224, "total_sales": 3352806}, {"date": "2026-02-04", "order_count": 16, "product_kinds": 56, "product_total_qty": 350, "min_order": 100324, "max_order": 300000, "avg_order": 157286, "total_sales": 2516581}, {"date": "2026-02-03", "order_count": 23, "product_kinds": 90, "product_total_qty": 474, "min_order": 100120, "max_order": 1199840, "avg_order": 204233, "total_sales": 4697369}, {"date": "2026-02-02", "order_count": 16, "product_kinds": 79, "product_total_qty": 280, "min_order": 100310, "max_order": 484808, "avg_order": 184450, "total_sales": 2951192}, {"date": "2026-02-01", "order_count": 7, "product_kinds": 35, "product_total_qty": 175, "min_order": 102256, "max_order": 551675, "avg_order": 187703, "total_sales": 1313922}, {"date": "2026-01-31", "order_count": 5, "product_kinds": 19, "product_total_qty": 80, "min_order": 143530, "max_order": 267536, "avg_order": 185663, "total_sales": 928314}, {"date": "2026-01-30", "order_count": 13, "product_kinds": 58, "product_total_qty": 254, "min_order": 0, "max_order": 277715, "avg_order": 157339, "total_sales": 2045408}, {"date": "2026-01-29", "order_count": 16, "product_kinds": 89, "product_total_qty": 434, "min_order": 102763, "max_order": 874062, "avg_order": 305542, "total_sales": 4888674}, {"date": "2026-01-28", "order_count": 17, "product_kinds": 48, "product_total_qty": 207, "min_order": 100460, "max_order": 335778, "avg_order": 152060, "total_sales": 2585024}, {"date": "2026-01-27", "order_count": 29, "product_kinds": 101, "product_total_qty": 562, "min_order": 100000, "max_order": 600000, "avg_order": 206677, "total_sales": 5993641}, {"date": "2026-01-26", "order_count": 14, "product_kinds": 63, "product_total_qty": 173, "min_order": 103920, "max_order": 227900, "avg_order": 134999, "total_sales": 1889986}, {"date": "2026-01-25", "order_count": 11, "product_kinds": 52, "product_total_qty": 221, "min_order": 102716, "max_order": 487478, "avg_order": 200522, "total_sales": 2205742}, {"date": "2026-01-24", "order_count": 5, "product_kinds": 27, "product_total_qty": 52, "min_order": 102738, "max_order": 147002, "avg_order": 122496, "total_sales": 612478}, {"date": "2026-01-23", "order_count": 19, "product_kinds": 79, "product_total_qty": 261, "min_order": 102457, "max_order": 257411, "avg_order": 144262, "total_sales": 2740971}, {"date": "2026-01-22", "order_count": 26, "product_kinds": 69, "product_total_qty": 412, "min_order": 102610, "max_order": 375420, "avg_order": 170965, "total_sales": 4445096}, {"date": "2026-01-21", "order_count": 19, "product_kinds": 85, "product_total_qty": 483, "min_order": 100203, "max_order": 510956, "avg_order": 226322, "total_sales": 4300123}, {"date": "2026-01-20", "order_count": 48, "product_kinds": 82, "product_total_qty": 766, "min_order": 100000, "max_order": 754139, "avg_order": 191513, "total_sales": 9192637}, {"date": "2026-01-19", "order_count": 54, "product_kinds": 129, "product_total_qty": 790, "min_order": 100240, "max_order": 1283494, "avg_order": 201331, "total_sales": 10871897}, {"date": "2026-01-18", "order_count": 9, "product_kinds": 47, "product_total_qty": 172, "min_order": 101980, "max_order": 363796, "avg_order": 189313, "total_sales": 1703819}, {"date": "2026-01-17", "order_count": 5, "product_kinds": 32, "product_total_qty": 110, "min_order": 102769, "max_order": 310000, "avg_order": 158460, "total_sales": 792301}, {"date": "2026-01-16", "order_count": 17, "product_kinds": 69, "product_total_qty": 276, "min_order": 102760, "max_order": 213940, "avg_order": 132233, "total_sales": 2247956}, {"date": "2026-01-15", "order_count": 17, "product_kinds": 69, "product_total_qty": 362, "min_order": 100135, "max_order": 738812, "avg_order": 186257, "total_sales": 3166365}, {"date": "2026-01-14", "order_count": 20, "product_kinds": 79, "product_total_qty": 332, "min_order": 100206, "max_order": 287746, "avg_order": 145551, "total_sales": 2911011}, {"date": "2026-01-13", "order_count": 19, "product_kinds": 79, "product_total_qty": 367, "min_order": 100200, "max_order": 336582, "avg_order": 153980, "total_sales": 2925622}, {"date": "2026-01-12", "order_count": 23, "product_kinds": 123, "product_total_qty": 895, "min_order": 100004, "max_order": 3301230, "avg_order": 366491, "total_sales": 8429291}, {"date": "2026-01-11", "order_count": 7, "product_kinds": 25, "product_total_qty": 141, "min_order": 106390, "max_order": 290000, "avg_order": 151148, "total_sales": 1058036}, {"date": "2026-01-10", "order_count": 5, "product_kinds": 16, "product_total_qty": 68, "min_order": 103000, "max_order": 245469, "avg_order": 143340, "total_sales": 716701}, {"date": "2026-01-09", "order_count": 8, "product_kinds": 38, "product_total_qty": 131, "min_order": 100890, "max_order": 463940, "avg_order": 172157, "total_sales": 1377255}, {"date": "2026-01-08", "order_count": 20, "product_kinds": 84, "product_total_qty": 379, "min_order": 100000, "max_order": 898684, "avg_order": 192402, "total_sales": 3848031}, {"date": "2026-01-07", "order_count": 22, "product_kinds": 81, "product_total_qty": 319, "min_order": 100000, "max_order": 354568, "avg_order": 156664, "total_sales": 3446600}, {"date": "2026-01-06", "order_count": 19, "product_kinds": 94, "product_total_qty": 333, "min_order": 100711, "max_order": 380029, "avg_order": 189069, "total_sales": 3592317}, {"date": "2026-01-05", "order_count": 23, "product_kinds": 94, "product_total_qty": 360, "min_order": 101080, "max_order": 447895, "avg_order": 201506, "total_sales": 4634639}, {"date": "2026-01-04", "order_count": 7, "product_kinds": 49, "product_total_qty": 147, "min_order": 111788, "max_order": 890249, "avg_order": 276432, "total_sales": 1935025}, {"date": "2026-01-03", "order_count": 6, "product_kinds": 31, "product_total_qty": 116, "min_order": 101787, "max_order": 874996, "avg_order": 328256, "total_sales": 1969534}, {"date": "2026-01-02", "order_count": 7, "product_kinds": 36, "product_total_qty": 106, "min_order": 100540, "max_order": 251612, "avg_order": 171402, "total_sales": 1199811}, {"date": "2026-01-01", "order_count": 8, "product_kinds": 48, "product_total_qty": 147, "min_order": 100142, "max_order": 354290, "avg_order": 169346, "total_sales": 1354770}, {"date": "2025-12-31", "order_count": 12, "product_kinds": 66, "product_total_qty": 207, "min_order": 110960, "max_order": 253034, "avg_order": 148601, "total_sales": 1783211}, {"date": "2025-12-30", "order_count": 14, "product_kinds": 58, "product_total_qty": 286, "min_order": 100030, "max_order": 445575, "avg_order": 184532, "total_sales": 2583447}, {"date": "2025-12-29", "order_count": 19, "product_kinds": 77, "product_total_qty": 288, "min_order": 100090, "max_order": 592038, "avg_order": 211150, "total_sales": 4011852}, {"date": "2025-12-28", "order_count": 8, "product_kinds": 36, "product_total_qty": 131, "min_order": 100845, "max_order": 309620, "avg_order": 162133, "total_sales": 1297061}, {"date": "2025-12-27", "order_count": 9, "product_kinds": 50, "product_total_qty": 159, "min_order": 100140, "max_order": 385010, "avg_order": 163689, "total_sales": 1473202}, {"date": "2025-12-26", "order_count": 19, "product_kinds": 76, "product_total_qty": 336, "min_order": 101280, "max_order": 535770, "avg_order": 175075, "total_sales": 3326422}, {"date": "2025-12-25", "order_count": 7, "product_kinds": 54, "product_total_qty": 219, "min_order": 103454, "max_order": 780450, "avg_order": 259094, "total_sales": 1813657}, {"date": "2025-12-24", "order_count": 8, "product_kinds": 46, "product_total_qty": 90, "min_order": 100499, "max_order": 198407, "avg_order": 137000, "total_sales": 1096004}], "buyers": [], "products": [], "segment_counts": {}, "orders": [], "hourly": [], "product_daily": []};
+
+const SEG_COLORS = {champion:'#22c55e',loyal:'#3b82f6',promising:'#8b5cf6',atrisk:'#f59e0b',dormant:'#ef4444',lost:'#94a3b8'};
+const SEG_LABELS = {champion:'Champion',loyal:'Loyal',promising:'Promising',atrisk:'At Risk',dormant:'Dormant',lost:'Lost'};
+const SEG_BADGE = {champion:'badge-s',loyal:'badge-i',promising:'badge-p',atrisk:'badge-w',dormant:'badge-d',lost:'badge-m'};
+const SEG_DESC = {champion:'고빈도 고단가 VIP',loyal:'정기 구매 리피터',promising:'유망 고객',atrisk:'구매 빈도 감소',dormant:'장기 미주문',lost:'이탈'};
+let curSeg = 'all';
+let curPage = 'dash';
+let salesChart, segChart, detailChartInst;
+let selMonth='';
+let detailMode='daily';
+let skuPeriod='all';
+let skuSort='orders';
 
 function fmtKRW(n) {
   if(n>=100000000) return (n/100000000).toFixed(1)+'억';
   if(n>=10000) return Math.round(n/10000).toLocaleString()+'만';
   return n.toLocaleString();
 }
+
 function fmtFull(n) { return n.toLocaleString()+'원'; }
+
+const ct = D.crawl_meta.crawled_at.slice(0,16).replace('T',' ');
+document.getElementById('crawlTime').textContent = '최종 업데이트: '+ct;
+
+const ds = D.daily_sales;
 function getMonday(dateStr){const[y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d));const day=dt.getUTCDay();const diff=day===0?-6:1-day;dt.setUTCDate(dt.getUTCDate()+diff);return dt.toISOString().slice(0,10);}
 function addDays(dateStr,n){const[y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+n));return dt.toISOString().slice(0,10);}
-function getYM(dateStr){return dateStr.slice(0,7);}
-function prevYMOf(ym){const[y,m]=ym.split('-').map(Number);const pm=m===1?12:m-1;const py=m===1?y-1:y;return py+'-'+String(pm).padStart(2,'0');}
-function lastDayOf(ym){const[y,m]=ym.split('-').map(Number);return new Date(Date.UTC(y,m,0)).getUTCDate();}
 
-function initData() {
-  ds = D.daily_sales;
-  latestDate = ds.length ? ds[0].date : new Date().toISOString().slice(0,10);
-  document.getElementById('crawlTime').textContent = D.crawl_meta.crawled_at.slice(11,19);
+const latestDate=ds.length?ds[0].date:new Date().toISOString().slice(0,10);
+const mondayStr=getMonday(latestDate);
+const prevMondayStr=addDays(mondayStr,-7);
+const prevSundayStr=addDays(prevMondayStr,6);
+const thisWeek=ds.filter(d=>d.date>=mondayStr&&d.date<=latestDate);
+const prevWeek=ds.filter(d=>d.date>=prevMondayStr&&d.date<=prevSundayStr);
+const sum7=thisWeek.reduce((s,d)=>s+d.total_sales,0);
+const sump7=prevWeek.reduce((s,d)=>s+d.total_sales,0);
+const wow=sump7?((sum7-sump7)/sump7*100).toFixed(1):'0';
+const ord7=thisWeek.reduce((s,d)=>s+d.order_count,0);
+const ordp7=prevWeek.reduce((s,d)=>s+d.order_count,0);
+const wowOrd=ordp7?((ord7-ordp7)/ordp7*100).toFixed(1):'0';
+const aov=ord7?Math.round(sum7/ord7):0;
+const aovp=ordp7?Math.round(sump7/ordp7):0;
+const wowAov=aovp?((aov-aovp)/aovp*100).toFixed(1):'0';
+const weekStart=mondayStr.slice(5).replace('-','/').replace(/^0/,'');
+const weekEnd=latestDate.slice(5).replace('-','/').replace(/^0/,'');
+const curYM=latestDate.slice(0,7);
+const thisMonth=ds.filter(d=>d.date.startsWith(curYM));
+const monthSum=thisMonth.reduce((s,d)=>s+d.total_sales,0);
+const monthOrd=thisMonth.reduce((s,d)=>s+d.order_count,0);
+const curDay=parseInt(latestDate.slice(8,10));
+const prevYM=(()=>{const[y,m]=curYM.split('-').map(Number);const pm=m===1?12:m-1;const py=m===1?y-1:y;return py+'-'+String(pm).padStart(2,'0');})();
+const prevMonthSame=ds.filter(d=>d.date.startsWith(prevYM)&&parseInt(d.date.slice(8,10))<=curDay);
+const prevMonthSum=prevMonthSame.reduce((s,d)=>s+d.total_sales,0);
+const mom=prevMonthSum?((monthSum-prevMonthSum)/prevMonthSum*100).toFixed(1):'0';
+
+const segs = ['champion','loyal','promising','atrisk','dormant','lost'];
+let activeBuyers, activeRate, dormantCt, atriskCt, segCts;
+
+function recompute() {
+  const sc = {};
+  segs.forEach(s=>sc[s]=0);
+  D.buyers.forEach(b=>sc[b.segment]=(sc[b.segment]||0)+1);
+  D.segment_counts = sc;
+  dormantCt = sc.dormant||0;
+  atriskCt = sc.atrisk||0;
+  activeBuyers = D.buyers.filter(b=>['champion','loyal','promising'].includes(b.segment)).length;
+  activeRate = D.buyers.length ? (activeBuyers/D.buyers.length*100).toFixed(1) : '0';
+  segCts = segs.map(s=>sc[s]||0);
 }
-
-const PERIODS=[
-  {id:'today',label:'오늘'},
-  {id:'yesterday',label:'어제'},
-  {id:'thisWeek',label:'이번주'},
-  {id:'lastWeek',label:'지난주'},
-  {id:'thisMonth',label:'이번달'},
-  {id:'lastMonth',label:'지난달'},
-];
-
-function calcMetrics() {
-  const mondayStr=getMonday(latestDate);
-  const prevMondayStr=addDays(mondayStr,-7);
-  const prevSundayStr=addDays(prevMondayStr,6);
-  curYM=getYM(latestDate);
-  prevYM=prevYMOf(curYM);
-  const prevPrevYM=prevYMOf(prevYM);
-  const curDay=parseInt(latestDate.slice(8,10));
-  const yesterday=addDays(latestDate,-1);
-
-  if(curPeriod==='today'){
-    curData=ds.filter(d=>d.date===latestDate);
-    prevData=ds.filter(d=>d.date===yesterday);
-    periodLabel='오늘';
-    periodDateRange=latestDate.slice(5).replace('-','/');
-  } else if(curPeriod==='yesterday'){
-    curData=ds.filter(d=>d.date===yesterday);
-    prevData=ds.filter(d=>d.date===addDays(yesterday,-1));
-    periodLabel='어제';
-    periodDateRange=yesterday.slice(5).replace('-','/');
-  } else if(curPeriod==='thisWeek'){
-    curData=ds.filter(d=>d.date>=mondayStr&&d.date<=latestDate);
-    prevData=ds.filter(d=>d.date>=prevMondayStr&&d.date<=prevSundayStr);
-    periodLabel='이번주';
-    periodDateRange=mondayStr.slice(5).replace('-','/')+'~'+latestDate.slice(5).replace('-','/');
-  } else if(curPeriod==='lastWeek'){
-    curData=ds.filter(d=>d.date>=prevMondayStr&&d.date<=prevSundayStr);
-    const pp=addDays(prevMondayStr,-7);
-    prevData=ds.filter(d=>d.date>=pp&&d.date<=addDays(pp,6));
-    periodLabel='지난주';
-    periodDateRange=prevMondayStr.slice(5).replace('-','/')+'~'+prevSundayStr.slice(5).replace('-','/');
-  } else if(curPeriod==='thisMonth'){
-    curData=ds.filter(d=>d.date.startsWith(curYM));
-    prevData=ds.filter(d=>d.date.startsWith(prevYM)&&parseInt(d.date.slice(8,10))<=curDay);
-    periodLabel='이번달';
-    periodDateRange=curYM.slice(5).replace(/^0/,'')+'월';
-  } else if(curPeriod==='lastMonth'){
-    curData=ds.filter(d=>d.date.startsWith(prevYM));
-    prevData=ds.filter(d=>d.date.startsWith(prevPrevYM));
-    periodLabel='지난달';
-    periodDateRange=prevYM.slice(5).replace(/^0/,'')+'월';
-  }
-
-  if(cmpPreset==='prevWeek'&&compareMode==='preset'){
-    const wkStart=curData.length?getMonday(curData[curData.length-1].date):mondayStr;
-    const pwStart=addDays(wkStart,-7);
-    prevData=ds.filter(d=>d.date>=pwStart&&d.date<=addDays(pwStart,6));
-  } else if(cmpPreset==='prevMonth'&&compareMode==='preset'){
-    const ym=curData.length?getYM(curData[0].date):curYM;
-    const pym=prevYMOf(ym);
-    prevData=ds.filter(d=>d.date.startsWith(pym));
-  }
-
-  sum7=curData.reduce((s,d)=>s+d.total_sales,0);
-  sump7=prevData.reduce((s,d)=>s+d.total_sales,0);
-  wow=sump7?((sum7-sump7)/sump7*100).toFixed(1):'0';
-  ord7=curData.reduce((s,d)=>s+d.order_count,0);
-  ordp7=prevData.reduce((s,d)=>s+d.order_count,0);
-  wowOrd=ordp7?((ord7-ordp7)/ordp7*100).toFixed(1):'0';
-  aov=ord7?Math.round(sum7/ord7):0;
-  aovp=ordp7?Math.round(sump7/ordp7):0;
-  wowAov=aovp?((aov-aovp)/aovp*100).toFixed(1):'0';
-
-  const thisMonth=ds.filter(d=>d.date.startsWith(curYM));
-  monthSum=thisMonth.reduce((s,d)=>s+d.total_sales,0);
-  monthOrd=thisMonth.reduce((s,d)=>s+d.order_count,0);
-  const curDayN=parseInt(latestDate.slice(8,10));
-  const prevMonthSame=ds.filter(d=>d.date.startsWith(prevYM)&&parseInt(d.date.slice(8,10))<=curDayN);
-  const prevMonthSum=prevMonthSame.reduce((s,d)=>s+d.total_sales,0);
-  mom=prevMonthSum?((monthSum-prevMonthSum)/prevMonthSum*100).toFixed(1):'0';
-}
-function renderPeriodBtns() {
-  document.getElementById('periodBtns').innerHTML = PERIODS.map(p =>
-    `<button class="period-btn ${curPeriod===p.id?'active':''}" onclick="setPeriod('${p.id}')">${p.label}</button>`
-  ).join('');
-  document.getElementById('periodLabel').innerHTML = periodLabel+' <span class="time">'+periodDateRange+'</span>';
-  const badge=document.getElementById('periodBadge');
-  if(compareMode==='preset') badge.innerHTML=`<span class="period-badge">vs ${cmpPreset==='prev'?'전기간':cmpPreset==='prevWeek'?'전주':'전월'}</span>`;
-  else badge.innerHTML='';
-}
-
-function setPeriod(p) {
-  curPeriod=p;
-  calcMetrics();
-  renderPeriodBtns();
-  renderKPI();
-  renderPartCards();
-  renderHourlyChart();
-  renderProductRank();
-}
-
-function setCmpMode(mode) {
-  compareMode=mode;
-  document.querySelectorAll('.cmp-mode').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.cmp-mode').forEach(b=>{if(b.textContent===(mode==='preset'?'프리셋':'끄기'))b.classList.add('active');});
-  document.getElementById('cmpPresets').style.display=mode==='preset'?'':'none';
-  calcMetrics();
-  renderPeriodBtns();
-  renderKPI();
-  renderPartCards();
-  renderHourlyChart();
-  renderProductRank();
-}
-
-function setCmpPreset(preset) {
-  cmpPreset=preset;
-  document.querySelectorAll('.cmp-preset').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  calcMetrics();
-  renderPeriodBtns();
-  renderKPI();
-  renderPartCards();
-  renderHourlyChart();
-  renderProductRank();
-}
+recompute();
 
 /* ===== Render functions ===== */
+function renderNav() {
+  document.getElementById('sidebarNav').innerHTML = `
+    <div class="nav-sec">Dashboard</div>
+    <div class="nav-item ${curPage==='dash'?'active':''}" onclick="showPage('dash')"><span>&#x1f4ca;</span> 매출 대시보드</div>
+    <div class="nav-item ${curPage==='detail'?'active':''}" onclick="showPage('detail')"><span>&#x1f4cb;</span> 매출 상세</div>
+    <div class="nav-item" onclick="goToDash('insCards')"><span>&#x1f4a1;</span> 인사이트<span class="badge" id="navInsight">0</span></div>
+    <div class="nav-sec">회원 관리</div>
+    <div class="nav-item ${curPage==='buyers'?'active':''}" onclick="showPage('buyers')"><span>&#x1f465;</span> 전체 회원 <span class="badge" id="navTotal">${D.buyers.length}</span></div>
+    <div class="nav-sec">매출 분석</div>
+    <div class="nav-item ${curPage==='sku'?'active':''}" onclick="showPage('sku')"><span>&#x1f4e6;</span> 상품 랭킹</div>
+    <div class="nav-item" onclick="goToDash('actionCard')"><span>&#x1f3af;</span> 액션 플랜<span class="badge" id="navAction">3</span></div>`;
+}
+
+function renderTopbar() {
+  const titles = {dash:'매출 대시보드',buyers:'전체 회원',detail:'매출 상세',sku:'상품 랭킹'};
+  document.getElementById('topTitle').textContent = titles[curPage]||'매출 대시보드';
+  document.getElementById('topMeta').textContent = '고도몰 B2B — 실데이터';
+}
+
+function showPage(page) {
+  curPage = page;
+  ['pageDash','pageBuyers','pageDetail','pageSku'].forEach(id=>document.getElementById(id).style.display='none');
+  const pageMap={dash:'pageDash',buyers:'pageBuyers',detail:'pageDetail',sku:'pageSku'};
+  document.getElementById(pageMap[page]||'pageDash').style.display='';
+  if(page==='detail') renderDetail();
+  if(page==='sku') renderSKU();
+  renderNav();
+  renderTopbar();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goToDash(elId) {
+  if(curPage!=='dash') showPage('dash');
+  setTimeout(()=>{const el=document.getElementById(elId);if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},80);
+}
 
 function renderKPI() {
-  const showCmp = compareMode==='preset';
   document.getElementById('kpiRow').innerHTML = [
-    {l:'매출액',v:fmtFull(sum7),c:showCmp?wow:null,d:showCmp?fmtFull(sump7):''},
-    {l:'주문건수',v:ord7+'건',c:showCmp?wowOrd:null,d:showCmp?ordp7+'건':''},
-    {l:'객단가',v:fmtFull(aov),c:showCmp?wowAov:null,d:showCmp?fmtFull(aovp):''},
-  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-val">${k.v}</div><div class="kpi-sub">${k.c!==null?`<span class="chg ${parseFloat(k.c)>=0?'up':'down'}">${parseFloat(k.c)>=0?'▲':'▼'} ${Math.abs(parseFloat(k.c)).toFixed(1)}%</span>`:''} <span class="kpi-desc">${k.d}</span></div></div>`).join('');
+    {l:'주간 매출',v:fmtFull(sum7),c:wow,d:weekStart+'~'+weekEnd+' vs 전주',cl:''},
+    {l:'수주 건수',v:ord7+'건',c:wowOrd,d:'vs 전주',cl:'green'},
+    {l:'평균 수주액',v:fmtFull(aov),c:wowAov,d:'vs 전주',cl:'purple'},
+    {l:'Active Rate',v:activeRate+'%',c:null,d:activeBuyers+'/'+D.buyers.length+'사',cl:'green'},
+    {l:'대응 필요',v:(dormantCt+atriskCt)+'사',c:null,d:'At Risk '+atriskCt+' / Dormant '+dormantCt,cl:'red'},
+  ].map(k=>`<div class="kpi ${k.cl}"><div class="kpi-label">${k.l}</div><div class="kpi-val">${k.v}</div><div class="kpi-sub">${k.c!==null?`<span class="chg ${parseFloat(k.c)>=0?'up':'down'}">${parseFloat(k.c)>=0?'+':''}${k.c}%</span>`:''} <span class="kpi-desc">${k.d}</span></div></div>`).join('');
 }
 
-function renderPartCards() {
-  const periodDates = curData.map(d=>d.date);
-  const periodStart = periodDates.length ? periodDates[periodDates.length-1] : '';
-  const periodEnd = periodDates.length ? periodDates[0] : '';
-
-  const periodOrders = (D.orders||[]).filter(o=>o.d>=periodStart && o.d<=periodEnd);
-
-  const buyerMap = {};
-  D.buyers.forEach(b=>{buyerMap[b.id]=b;});
-
-  const vvipIds=new Set(D.buyers.filter(b=>/vvip/i.test(b.grade)).map(b=>b.id));
-  const newIds=new Set(D.buyers.filter(b=>b.first_order && b.first_order>=periodStart && b.first_order<=periodEnd).map(b=>b.id));
-
-  function calc(idSet){
-    const ords=periodOrders.filter(o=>idSet.has(o.m));
-    const sales=ords.reduce((s,o)=>s+o.a,0);
-    const cnt=ords.length;
-    return {sales, orders:cnt, aov:cnt?Math.round(sales/cnt):0};
-  }
-  const existIds=new Set(periodOrders.map(o=>o.m).filter(m=>!vvipIds.has(m)&&!newIds.has(m)));
-
-  const v=calc(vvipIds), n=calc(newIds), e=calc(existIds);
-  const vCnt=new Set(periodOrders.filter(o=>vvipIds.has(o.m)).map(o=>o.m)).size;
-  const nCnt=newIds.size;
-  const eCnt=existIds.size;
-
-  const cats=[
-    {cls:'new-buyer',title:'신규',data:n,count:nCnt},
-    {cls:'existing',title:'기존 고객',data:e,count:eCnt},
-    {cls:'vvip',title:'VVIP',data:v,count:vCnt},
-  ];
-  document.getElementById('partRow').innerHTML = cats.map(c=>`<div class="part-card ${c.cls}"><div class="part-title">${c.title} <span style="font-size:12px;font-weight:400;color:var(--text3)">${c.count}사</span></div><div class="part-metrics"><div class="part-metric"><div class="pm-label">매출</div><div class="pm-val">${fmtKRW(c.data.sales)}원</div></div><div class="part-metric"><div class="pm-label">주문</div><div class="pm-val">${c.data.orders}건</div></div><div class="part-metric"><div class="pm-label">AOV</div><div class="pm-val">${fmtKRW(c.data.aov)}원</div></div></div></div>`).join('');
+function renderSummary() {
+  const wowStr = (parseFloat(wow)>=0?'+':'')+wow+'%';
+  const momStr = (parseFloat(mom)>=0?'+':'')+mom+'%';
+  const ym = curYM.split('-')[1].replace(/^0/,'');
+  document.getElementById('summaryStrip').innerHTML = `<span class="strip-item">&#x1f4c5; ${weekStart}~${weekEnd}</span><span class="strip-sep">|</span><span class="strip-item">주간 <strong>${fmtFull(sum7)}</strong> <span class="strip-sub">전주비 ${wowStr}</span></span><span class="strip-sep">|</span><span class="strip-item">${ym}월 <strong>${fmtFull(monthSum)}</strong> <span class="strip-sub">전월 동기비 ${momStr}</span></span><span class="strip-sep">|</span><span class="strip-item">&#x26a0;&#xfe0f; At Risk <strong style="color:#f59e0b">${atriskCt}</strong>사 / Dormant <strong style="color:#ef4444">${dormantCt}</strong>사</span>`;
 }
 
-let hourlyChart;
-function renderHourlyChart() {
-  if (typeof Chart === 'undefined') return;
-  const periodDates = curData.map(d=>d.date);
-  const pStart = periodDates.length ? periodDates[periodDates.length-1] : '';
-  const pEnd = periodDates.length ? periodDates[0] : '';
-  const prevDates = prevData.map(d=>d.date);
-  const ppStart = prevDates.length ? prevDates[prevDates.length-1] : '';
-  const ppEnd = prevDates.length ? prevDates[0] : '';
+function renderHeaders() {
+  document.getElementById('hdrTrend').textContent = '일별 매출 추이';
+  document.getElementById('hdrTrendMeta').textContent = '최근 14일 + 전 14일 비교';
+  document.getElementById('hdrSeg').textContent = '세그먼트 분포';
+  document.getElementById('totalBuyers').textContent = D.buyers.length + '사';
+  document.getElementById('hdrInsight').textContent = '자동 인사이트';
+  document.getElementById('hdrAction').textContent = '액션 플랜';
+}
 
-  const curH = (D.hourly||[]).filter(h=>h.d>=pStart&&h.d<=pEnd);
-  const prevH = (D.hourly||[]).filter(h=>h.d>=ppStart&&h.d<=ppEnd);
-
-  const curByHour = Array(24).fill(0);
-  const prevByHour = Array(24).fill(0);
-  curH.forEach(h=>{curByHour[h.h]+=h.s;});
-  prevH.forEach(h=>{prevByHour[h.h]+=h.s;});
-
-  const labels = Array.from({length:24},(_,i)=>i+'시');
-  const ctx = document.getElementById('hourlyChart').getContext('2d');
-  if(hourlyChart) hourlyChart.destroy();
-  const datasets = [{label:'매출',data:curByHour,backgroundColor:'rgba(59,130,246,0.7)',borderRadius:3}];
-  if(compareMode==='preset') datasets.push({label:'비교매출',data:prevByHour,backgroundColor:'rgba(209,213,219,0.5)',borderRadius:3});
-
-  hourlyChart = new Chart(ctx,{
+function renderSalesChart() {
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  const last14 = ds.slice(0,14).reverse();
+  const prev14 = ds.slice(14,28).reverse();
+  if(salesChart) salesChart.destroy();
+  salesChart = new Chart(ctx,{
     type:'bar',
-    data:{labels,datasets},
+    data:{
+      labels:last14.map(d=>d.date.slice(5)),
+      datasets:[
+        {label:'매출',data:last14.map(d=>d.total_sales),backgroundColor:'rgba(74,144,217,0.7)',borderRadius:4,order:2},
+        {label:'전 14일',data:prev14.map(d=>d.total_sales),backgroundColor:'rgba(74,144,217,0.15)',borderRadius:4,order:3},
+        {label:'수주 수',data:last14.map(d=>d.order_count),type:'line',borderColor:'#22c55e',backgroundColor:'transparent',tension:0.3,yAxisID:'y1',pointRadius:3,order:1},
+      ]
+    },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{font:{size:11},usePointStyle:true}},
-        tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmtFull(ctx.raw)}}}},
-      scales:{y:{beginAtZero:true,ticks:{font:{size:10},callback:v=>fmtKRW(v)}},x:{ticks:{font:{size:10}}}}
+      plugins:{legend:{display:true,position:'top',labels:{font:{size:10},usePointStyle:true}},
+        tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+(ctx.dataset.yAxisID==='y1'?ctx.raw+'건':fmtFull(ctx.raw))}}}},
+      scales:{
+        y:{beginAtZero:true,ticks:{font:{size:10},callback:v=>fmtKRW(v)}},
+        y1:{position:'right',beginAtZero:true,grid:{display:false},ticks:{font:{size:10}}},
+        x:{ticks:{font:{size:10}}}
+      }
     }
   });
 }
 
-function renderProductRank() {
-  const periodDates = curData.map(d=>d.date);
-  const pStart = periodDates.length ? periodDates[periodDates.length-1] : '';
-  const pEnd = periodDates.length ? periodDates[0] : '';
-
-  const pd = (D.product_daily||[]).filter(p=>p.d>=pStart&&p.d<=pEnd);
-  const agg = {};
-  pd.forEach(p=>{
-    if(!agg[p.c]) agg[p.c]={name:p.n,orders:0,qty:0,amount:0};
-    agg[p.c].orders+=p.o;
-    agg[p.c].qty+=p.q;
-    agg[p.c].amount+=p.a;
+function renderSegChart() {
+  const ctx = document.getElementById('segChart').getContext('2d');
+  if(segChart) segChart.destroy();
+  segChart = new Chart(ctx,{
+    type:'doughnut',
+    data:{labels:segs.map(s=>SEG_LABELS[s]),datasets:[{data:segCts,backgroundColor:segs.map(s=>SEG_COLORS[s]),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}},onClick:(e,el)=>{if(el.length){switchSeg(segs[el[0].index])}}}
   });
-  const ranked = Object.values(agg).sort((a,b)=>b.amount-a.amount).slice(0,20);
+}
 
-  document.getElementById('prodRankMeta').textContent = Object.keys(agg).length+'SKU';
-  document.getElementById('prodRankHead').innerHTML = '<tr><th>#</th><th>상품</th><th style="text-align:right">매출</th><th style="text-align:center">주문</th><th style="text-align:center">수량</th></tr>';
-  document.getElementById('prodRankBody').innerHTML = ranked.map((p,i)=>
-    `<tr><td style="color:var(--text3)">${i+1}</td><td style="font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</td><td style="text-align:right;font-weight:600">${fmtFull(p.amount)}</td><td style="text-align:center">${p.orders}건</td><td style="text-align:center">${p.qty}개</td></tr>`
-  ).join('');
+function renderSegList() {
+  document.getElementById('segList').innerHTML = segs.map((s,i)=>`<div class="seg-item" onclick="switchSeg('${s}')"><div class="seg-dot" style="background:${SEG_COLORS[s]}"></div><div class="seg-info"><div class="seg-name">${SEG_LABELS[s]}</div><div class="seg-desc">${SEG_DESC[s]}</div></div><div><div class="seg-ct">${segCts[i]}</div><div class="seg-pct">${D.buyers.length?(segCts[i]/D.buyers.length*100).toFixed(0):0}%</div></div></div>`).join('');
+}
+
+function renderInsights() {
+  const ins = [];
+  if(parseFloat(wow)<-10) ins.push({cls:'high',badge:'HIGH',title:'주간 매출 전주비 '+wow+'% 급락',desc:'최근 7일 매출이 전주 대비 크게 감소했습니다. 주요 거래처 주문 현황을 확인하고 즉시 팔로업이 필요합니다.'});
+  else if(parseFloat(wow)<-3) ins.push({cls:'med',badge:'MEDIUM',title:'매출 소폭 감소 추세 ('+wow+'%)',desc:'전주 대비 소폭 감소. 주문 건수와 객단가 변동을 개별 확인하세요.'});
+  else if(parseFloat(wow)>15) ins.push({cls:'opp',badge:'OPPORTUNITY',title:'매출 호조 +'+wow+'%',desc:'전주 대비 대폭 증가. 성장 요인을 파악하고 횡전개를 검토하세요.'});
+  if(dormantCt>=3) ins.push({cls:'high',badge:'HIGH',title:'Dormant '+dormantCt+'사 — 재활성화 시급',desc:'장기 미주문 고객이 '+dormantCt+'사 있습니다. 재활성화 메일/특별 오퍼로 구매 전환을 유도하세요.'});
+  if(atriskCt>=2) ins.push({cls:'high',badge:'HIGH',title:'At Risk '+atriskCt+'사 감지',desc:'구매 빈도가 감소하고 있는 고객이 '+atriskCt+'사 있습니다. 1:1 전화 팔로업과 특별 할인 쿠폰 배포를 권장합니다.'});
+  const td = ds[0];
+  if(td && ds[1]) {
+    const dod = ((td.total_sales-ds[1].total_sales)/(ds[1].total_sales||1)*100).toFixed(1);
+    if(parseFloat(dod)>30) ins.push({cls:'opp',badge:'OPPORTUNITY',title:'당일 매출 급증 +'+dod+'% (전일비)',desc:'오늘 '+fmtFull(td.total_sales)+'으로 전일 대비 대폭 증가.'});
+  }
+  ins.push({cls:'low',badge:'INFO',title:'전체 회원 '+D.buyers.length+'사, 상품 '+D.products.length+'SKU',desc:'데이터는 '+D.crawl_meta.crawled_at.slice(0,10)+' 시점 기준입니다.'});
+  document.getElementById('insCnt').textContent = ins.length+'건 감지';
+  const highCt = ins.filter(i=>i.cls==='high').length;
+  const ni = document.getElementById('navInsight'); if(ni) ni.textContent = highCt;
+  document.getElementById('insCards').innerHTML = ins.map(i=>`<div class="ins ${i.cls}"><div style="display:flex;justify-content:space-between;align-items:center"><span class="ins-badge">${i.badge}</span></div><div class="ins-title">${i.title}</div><div class="ins-desc">${i.desc}</div></div>`).join('');
+}
+
+function renderActions() {
+  const acts = [];
+  if(atriskCt>0) acts.push({p:'p0',seg:'At Risk',act:atriskCt+'사 1:1 전화 팔로업 + 특별 할인 쿠폰 배포',own:'영업'});
+  if(dormantCt>0) acts.push({p:'p0',seg:'Dormant',act:dormantCt+'사 재활성화 메일(한정 오퍼)',own:'마케팅'});
+  const lostCt = D.segment_counts.lost||0;
+  if(lostCt>0) acts.push({p:'p1',seg:'Lost',act:lostCt+'사 win-back 캠페인',own:'마케팅'});
+  document.getElementById('actionBody').innerHTML = `<table><thead><tr><th>우선도</th><th>대상</th><th>액션</th><th>담당</th></tr></thead><tbody>${acts.map(a=>`<tr><td><span class="pri ${a.p}">${a.p.toUpperCase()}</span></td><td><span class="badge ${a.seg==='At Risk'?'badge-w':(a.seg==='Dormant'?'badge-d':'badge-m')}">${a.seg}</span></td><td style="font-size:11px">${a.act}</td><td style="font-size:11px">${a.own}</td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ===== Buyers ===== */
+let activePreset=null;
+const PRESETS = {
+  p1:{ label:'고가치 휴면', desc:'200만+, 60일+ 미주문', filters:{ salesOp:'gte',salesVal:2000000,lastOp:'gte',lastDays:60 } },
+  p2:{ label:'이탈 징후', desc:'3건+, 60일+ 미주문', filters:{ ordOp:'gte',ordVal:3,lastOp:'gte',lastDays:60 } },
+  p3:{ label:'VIP 케어', desc:'500만+, 30일+ 미주문', filters:{ salesOp:'gte',salesVal:5000000,lastOp:'gte',lastDays:30 } },
+};
+
+function daysSince(dateStr){
+  if(!dateStr) return 9999;
+  const then=new Date(dateStr.slice(0,10));
+  return Math.floor((new Date()-then)/86400000);
+}
+
+function cmpOp(op,val,target){
+  if(op==='gte') return target>=val;
+  if(op==='lte') return target<=val;
+  if(op==='eq') return target===val;
+  return true;
+}
+
+function applyPreset(key){
+  if(activePreset===key){ clearFilter(); return; }
+  activePreset=key;
+  const p=PRESETS[key];
+  const f=p.filters;
+  document.getElementById('filterControls').style.display='block';
+  document.getElementById('fOrdVal').value=f.ordVal!==undefined?f.ordVal:'';
+  document.getElementById('fOrdOp').value=f.ordOp||'gte';
+  document.getElementById('fSalesVal').value=f.salesVal||'';
+  document.getElementById('fSalesOp').value=f.salesOp||'gte';
+  document.getElementById('fLastDays').value=f.lastDays||'';
+  document.getElementById('fLastOp').value=f.lastOp||'lte';
+  applyFilter();
+}
+
+function toggleCustom(){
+  activePreset='custom';
+  document.getElementById('filterControls').style.display='block';
+  renderPresetBtns();
+}
+
+function applyFilter(){
+  renderPresetBtns();
+  renderBuyers();
+}
+
+function clearFilter(){
+  activePreset=null;
+  document.getElementById('filterControls').style.display='none';
+  ['fOrdVal','fSalesVal','fLastDays'].forEach(id=>document.getElementById(id).value='');
+  renderPresetBtns();
+  renderBuyers();
+}
+
+function getFilteredBuyers(){
+  let list = curSeg==='all' ? D.buyers : D.buyers.filter(b=>b.segment===curSeg);
+  const el = document.getElementById('bSearch');
+  const q = el ? el.value.toLowerCase() : '';
+  if(q) list = list.filter(b=>(b.name+b.id+b.grade).toLowerCase().includes(q));
+  const ordVal=document.getElementById('fOrdVal').value;
+  const salesVal=document.getElementById('fSalesVal').value;
+  const lastDays=document.getElementById('fLastDays').value;
+  if(ordVal!=='') list=list.filter(b=>cmpOp(document.getElementById('fOrdOp').value,+ordVal,b.order_count));
+  if(salesVal) list=list.filter(b=>cmpOp(document.getElementById('fSalesOp').value,+salesVal,b.total_sales));
+  if(lastDays) list=list.filter(b=>cmpOp(document.getElementById('fLastOp').value,+lastDays,daysSince(b.last_order)));
+  return list;
+}
+
+function renderPresetBtns(){
+  const keys=Object.keys(PRESETS);
+  document.getElementById('filterPresets').innerHTML = keys.map(k=>`<div class="preset ${activePreset===k?'active':''}" onclick="applyPreset('${k}')">${PRESETS[k].label}<span class="p-desc">${PRESETS[k].desc}</span></div>`).join('')+`<div class="preset ${activePreset==='custom'?'active':''}" onclick="toggleCustom()">커스텀</div>`;
+}
+
+function renderBuyerTabs() {
+  document.getElementById('btabs').innerHTML = `
+    <div class="tab ${curSeg==='all'?'active':''}" onclick="switchSeg('all')">전체 회원<span class="tb">${D.buyers.length}</span></div>
+    ${segs.map(s=>`<div class="tab ${curSeg===s?'active':''}" onclick="switchSeg('${s}')">${SEG_LABELS[s]}<span class="tb">${D.segment_counts[s]||0}</span></div>`).join('')}`;
+  renderPresetBtns();
+  document.getElementById('buyerToolbar').innerHTML = `<input class="search-input" id="bSearch" placeholder="회원명/ID 검색..." oninput="renderBuyers()"><span class="filter-count" id="filterCount"></span><div style="flex:1"></div><button class="btn btn-sm" onclick="exportBuyers()">CSV 출력</button>`;
+}
+
+function renderBuyers() {
+  const list = getFilteredBuyers();
+  const fc = document.getElementById('filterCount');
+  if(fc) fc.textContent = list.length!==D.buyers.length ? list.length+'사 해당' : '';
+  document.getElementById('buyerThead').innerHTML = `<tr><th>회원명</th><th>회원ID</th><th>등급</th><th>세그먼트</th><th>수주 총액</th><th>수주 건수</th><th>최종 수주</th></tr>`;
+  document.getElementById('buyerTbody').innerHTML = list.slice(0,200).map(b=>`<tr><td style="font-weight:600">${b.name}</td><td style="font-size:11px;color:var(--text3)">${b.id}</td><td><span class="badge badge-i">${b.grade||'-'}</span></td><td><span class="badge ${SEG_BADGE[b.segment]}">${SEG_LABELS[b.segment]}</span></td><td style="text-align:right;font-weight:600">${fmtFull(b.total_sales)}</td><td style="text-align:center">${b.order_count}건</td><td style="font-size:11px">${b.last_order||'-'}</td></tr>`).join('');
+}
+
+function switchSeg(seg) {
+  curSeg = seg;
+  if(curPage!=='buyers') showPage('buyers');
+  renderBuyerTabs();
+  renderBuyers();
+}
+
+/* ===== SKU ===== */
+function setSkuPeriod(p){
+  skuPeriod=p;
+  document.querySelectorAll('#skuPeriodToggle .lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.period===p));
+  document.getElementById('skuMonthSelect').style.display=p==='month'?'':'none';
+  renderSKU();
+}
+function setSkuSort(s){
+  skuSort=s;
+  document.querySelectorAll('#skuSortToggle .lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.sort===s));
+  renderSKU();
+}
+
+function renderSKU() {
+  let prods = [...D.products];
+  prods.sort((a,b)=>b[skuSort]-a[skuSort]);
+  document.getElementById('hdrSku').textContent = '상품 랭킹';
+  document.getElementById('hdrSkuMeta').textContent = prods.length+'SKU';
+  document.getElementById('skuThead').innerHTML = `<tr><th>#</th><th>상품명</th><th>품번</th><th>수주건수</th><th>총수량</th><th>총액</th></tr>`;
+  document.getElementById('skuTbody').innerHTML = prods.map((p,i)=>`<tr><td style="color:var(--text3)">${i+1}</td><td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</td><td style="font-size:11px;color:var(--text3)">${p.code}</td><td style="text-align:center">${p.orders}</td><td style="text-align:center">${p.qty}</td><td style="text-align:right;font-weight:600">${fmtFull(p.amount)}</td></tr>`).join('');
+}
+
+/* ===== Detail ===== */
+function setDetailMode(m) {
+  detailMode=m;
+  document.getElementById('btnDaily').classList.toggle('active',m==='daily');
+  document.getElementById('btnWeekly').classList.toggle('active',m==='weekly');
+  renderDetail();
+}
+
+function renderDetail() {
+  const months = [...new Set(ds.map(d=>d.date.slice(0,7)))].sort().reverse();
+  const sel = document.getElementById('monthSelect');
+  if(!selMonth || !months.includes(selMonth)) selMonth = months[0]||'';
+  sel.innerHTML = months.map(m=>`<option value="${m}" ${m===selMonth?'selected':''}>${m}</option>`).join('');
+  selMonth = sel.value;
+
+  const mData = ds.filter(d=>d.date.startsWith(selMonth)).sort((a,b)=>a.date.localeCompare(b.date));
+  const mTotal = mData.reduce((s,d)=>s+d.total_sales,0);
+  const mOrd = mData.reduce((s,d)=>s+d.order_count,0);
+  const mAvg = mData.length ? Math.round(mTotal/mData.length) : 0;
+
+  const[py,pm] = selMonth.split('-').map(Number);
+  const prevM = py+'-'+String(pm===1?12:pm-1).padStart(2,'0');
+  const prevData = ds.filter(d=>d.date.startsWith(pm===1?(py-1)+'-12':prevM));
+  const prevTotal = prevData.reduce((s,d)=>s+d.total_sales,0);
+  const momD = prevTotal?((mTotal-prevTotal)/prevTotal*100).toFixed(1):'0';
+
+  document.getElementById('detailKpiRow').innerHTML = [
+    {l:'월간 매출 합계',v:fmtFull(mTotal),d:'vs 전월 '+(parseFloat(momD)>=0?'+':'')+momD+'%'},
+    {l:'월간 수주 건수',v:mOrd+'건',d:mData.length+'일 영업'},
+    {l:'일평균 매출',v:fmtFull(mAvg),d:''},
+    {l:'영업일수',v:mData.length+'일',d:''},
+  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-val">${k.v}</div><div class="kpi-sub"><span class="kpi-desc">${k.d}</span></div></div>`).join('');
+
+  let chartData, chartLabels;
+  if(detailMode==='weekly') {
+    const wk={};
+    mData.forEach(d=>{const w=getMonday(d.date);if(!wk[w])wk[w]={sales:0,orders:0,days:0};wk[w].sales+=d.total_sales;wk[w].orders+=d.order_count;wk[w].days++;});
+    const weeks=Object.keys(wk).sort();
+    chartLabels=weeks.map(w=>w.slice(5));
+    chartData=weeks.map(w=>wk[w]);
+  } else {
+    chartLabels=mData.map(d=>d.date.slice(5));
+    chartData=mData;
+  }
+
+  const ctx = document.getElementById('detailChart').getContext('2d');
+  if(detailChartInst) detailChartInst.destroy();
+  detailChartInst = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:chartLabels,
+      datasets:[
+        {label:'매출',data:chartData.map(d=>d.total_sales||d.sales),backgroundColor:'rgba(74,144,217,0.7)',borderRadius:4},
+        {label:'수주 수',data:chartData.map(d=>d.order_count||d.orders),type:'line',borderColor:'#22c55e',backgroundColor:'transparent',tension:0.3,yAxisID:'y1',pointRadius:3},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:10},usePointStyle:true}}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtKRW(v),font:{size:10}}},y1:{position:'right',beginAtZero:true,grid:{display:false},ticks:{font:{size:10}}},x:{ticks:{font:{size:10}}}}
+    }
+  });
+
+  document.getElementById('detailThead').innerHTML = `<tr><th>날짜</th><th>매출액</th><th>수주 건수</th><th>평균 수주액</th><th>상품 종수</th><th>수량</th></tr>`;
+  document.getElementById('detailTbody').innerHTML = mData.slice().reverse().map(d=>`<tr><td>${d.date}</td><td style="text-align:right;font-weight:600">${fmtFull(d.total_sales)}</td><td style="text-align:center">${d.order_count}</td><td style="text-align:right">${fmtFull(d.avg_order||0)}</td><td style="text-align:center">${d.product_kinds||0}</td><td style="text-align:center">${d.product_total_qty||0}</td></tr>`).join('');
 }
 
 /* ===== CSV Export ===== */
@@ -407,6 +629,19 @@ function exportCSV() {
   downloadCSV(csv, 'biteme_kr_b2b_daily.csv');
 }
 
+function exportBuyers() {
+  const list = getFilteredBuyers();
+  let csv = '회원명,회원ID,등급,세그먼트,수주총액,수주건수,최종수주\n';
+  list.forEach(b=>csv+=`"${b.name}",${b.id},${b.grade||''},${b.segment},${b.total_sales},${b.order_count},${b.last_order||''}\n`);
+  downloadCSV(csv, 'biteme_kr_b2b_buyers.csv');
+}
+
+function exportMonthCSV() {
+  const mData = ds.filter(d=>d.date.startsWith(selMonth));
+  let csv = '날짜,수주건수,수주총액,평균수주액,상품종수,수량\n';
+  mData.forEach(d=>csv+=`${d.date},${d.order_count},${d.total_sales},${d.avg_order||0},${d.product_kinds||0},${d.product_total_qty||0}\n`);
+  downloadCSV(csv, `biteme_kr_b2b_${selMonth}.csv`);
+}
 
 function downloadCSV(csv, filename) {
   const bom = '\uFEFF';
@@ -419,34 +654,20 @@ function downloadCSV(csv, filename) {
 
 /* ===== Init ===== */
 function renderAll() {
-  renderPeriodBtns();
+  renderNav();
+  renderTopbar();
   renderKPI();
-  renderPartCards();
-  renderHourlyChart();
-  renderProductRank();
+  renderSummary();
+  renderHeaders();
+  renderSalesChart();
+  renderSegChart();
+  renderSegList();
+  renderInsights();
+  renderActions();
+  renderBuyerTabs();
+  renderBuyers();
 }
-
-async function loadData(isRefresh) {
-  var overlay = document.getElementById('loadingOverlay');
-  var txt = document.getElementById('loadingText');
-  if (!isRefresh && overlay) overlay.style.display = 'flex';
-  if (txt) txt.textContent = isRefresh ? '데이터 갱신 중...' : '고도몰 API에서 데이터 로딩 중... (최초 ~30초 소요)';
-  try {
-    var resp = await fetch('/api/data');
-    if (!resp.ok) throw new Error('API status ' + resp.status);
-    D = await resp.json();
-    initData();
-    calcMetrics();
-    renderAll();
-    if (overlay) overlay.style.display = 'none';
-  } catch (e) {
-    if (txt) txt.textContent = '오류: ' + e.message;
-    document.title = 'ERROR: ' + e.message;
-  }
-}
-
-loadData(false);
-setInterval(function(){ loadData(true); }, 300000);
+renderAll();
 </script>
 </body>
 </html>
